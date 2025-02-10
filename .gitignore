@@ -1,0 +1,10 @@
+*.svg
+*.csv
+# python
+*.pyc
+__pycache__/
+venv/
+# vscode
+*.code-workspace
+.vscode/
+*.json
