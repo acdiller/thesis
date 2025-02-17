@@ -1,14 +1,14 @@
 import math
 import drawsvg
 from perlin_noise import PerlinNoise
-from art_utils import p5map
-from base_technique import BaseTechnique
+from techniques.art_utils import p5map
+from techniques.base_technique import BaseTechnique
 
 #TODO: add styles
 
 class FlowField(BaseTechnique):
     def __init__(self, rng, palette, resolution=4, noisescale=500, octaves=4):
-        super().__init__("flowfield", rng, palette)
+        super().__init__(rng, palette)
         self.resolution = resolution
         self.noisescale = noisescale
         self.octaves = octaves
@@ -62,3 +62,7 @@ class FlowField(BaseTechnique):
             #append path to drawing
             d.append(path)
         return d
+    
+    def __str__(self):
+        cls_name = type(self).__name__
+        return f"{cls_name}(resolution={self.resolution}, noisescale={self.noisescale}, octaves={self.octaves})"

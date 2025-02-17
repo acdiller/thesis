@@ -1,6 +1,5 @@
 class BaseTechnique:
-    def __init__(self, name, rng, palette, monocolour=False):
-        self.name = name
+    def __init__(self, rng, palette, monocolour=False):
         self.rng = rng
         if palette:
             self.palette = palette
