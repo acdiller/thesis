@@ -1,3 +1,5 @@
+import argparse
+
 from pyaxidraw import axidraw
 
 ad = axidraw.AxiDraw()
@@ -6,15 +8,16 @@ ad = axidraw.AxiDraw()
 def simulate_plot(svg):
     ad.plot_setup(svg)
 
-    ad.options.preview = True
-    ad.options.report_time = True
+    ad.options.preview = True   # perform offline simulation of plot
 
-    # must call plot_run to get report_time
     ad.plot_run(True)
-    dist_drawn = ad.distance_pendown
-    plot_time = ad.time_estimate
+    plot_stats = {
+        "plot_time": ad.time_estimate,  # estimated plot time (seconds)
+        "dist_drawn": ad.distance_pendown,  # distance traveled with pen down (meters)
+        "pen_lifts": ad.pen_lifts   # number of pen lifts
+    }
     
-    return dist_drawn, plot_time
+    return plot_stats
 
 # actual plotting
 def plot(svg, config):
@@ -25,4 +28,9 @@ def plot(svg, config):
     ad.plot_setup(svg)
     ad.load_config(config)
     
+    ad.plot_run()
+
+if __name__ == "__main__":
+    ad.plot_setup()
+    ad.options.mode = "sysinfo"
     ad.plot_run()
