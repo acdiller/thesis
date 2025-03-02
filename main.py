@@ -8,10 +8,10 @@ from plotter import penplot
 from techniques.flowfield import FlowField
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--generations", default=25, type=int)
+parser.add_argument("--iterations", default=100, type=int)
 parser.add_argument("--population_size", default=50, type=int)
 #parser.add_argument("--crossover_rate", default=0.4, type=float)
-parser.add_argument("--mutation_rate", default=0.2, type=float)
+#parser.add_argument("--mutation_rate", default=0.2, type=float)
 parser.add_argument("--output_path", default="./", type=str)
 args = parser.parse_args()
 
@@ -44,21 +44,32 @@ def fitness_function(ind):
     ind.fitness = ind.plot_info["dist_drawn"]
 
 
-def mutation(ind):
+def mutation(ind, it):
     mutator = deepcopy(ind)
-    #mutator.id += f"_m_{
+    mutator.id += f"_m{it}"
+    mutator.drawing.clear()
+    mutator.isEvaluated = False
+
+    if ind.rng.random() < 0.45:
+        mutator.technique.noisescale = ind.rng.randrange(100, 800)
+    elif ind.rng.random() < 0.9:
+        mutator.technique.octaves = ind.rng.randrange(2, 26)
+    else:
+        mutator.technique.noisescale = ind.rng.randrange(100, 800)
+        mutator.technique.octaves = ind.rng.randrange(2, 26)
+    return mutator
 
 
 def main():
     # cmd-line parameters
-    num_gens = args.generations
+    num_iterations = args.iterations
     pop_size = args.population_size
-    mut_rate = args.mutation_rate
+    #mut_rate = args.mutation_rate
 
     # create output directory if it doesn't exist
     if not os.path.exists(args.output_path): os.mkdir(args.output_path)
 
-    # configure bins
+    # configure bins - last element specifies upper bound
     ns_bins = [100, 200, 300, 400, 500, 600, 700, 800]  # noise scale
     oct_bins = [2, 6, 10, 14, 18, 22, 26]   # noise detail - octaves
 
@@ -68,6 +79,7 @@ def main():
 
     # initialize archive
     archive = {}
+    elites = archive.values()
 
     dim = (500, 500)
     pal = ["#28AFB0"]   # single colour palette for testing
@@ -103,17 +115,42 @@ def main():
             print(f"{archive[(ns_i, oct_i)].id}, fitness: {archive[(ns_i, oct_i)].fitness} replaced by {ind.id}, fitness: {ind.fitness} at {(ns_i, oct_i)}")
 
 
-    #for gen in range(1, num_gens):
-        # selection
+    for it in range(1, num_iterations):
+        # random selection
+        x = rng.choice(list(elites))
 
         # mutation
+        offspring = mutation(x, it)
 
         # evaluate
+        evaluate(offspring)
+        fitness_function(offspring)
 
+        # TODO - extract this to function/class
         # grid placement
-    
-    # get elites
-    elites = archive.values()
+        b = (offspring.technique.noisescale, offspring.technique.octaves)
+
+        # determine index for corresponding cell in archive
+        ns_i = None
+        oct_i = None
+        for i in range(len(ns_bins)-1):
+            if (b[0] >= ns_bins[i]) and (b[0] < ns_bins[i+1]):
+                ns_i = i
+                break
+        
+        for i in range(len(oct_bins)-1):
+            if (b[1] >= oct_bins[i]) and (b[1] < oct_bins[i+1]):
+                oct_i = i
+                break
+        
+        # add to archive
+        #if ((ns_i, oct_i) not in archive) or archive[(ns_i, oct_i)].fitness < ind.fitness:
+        if (ns_i, oct_i) not in archive:
+            archive[(ns_i, oct_i)] = offspring
+            print(f"{offspring.id}, fitness: {offspring.fitness}, placed at {(ns_i, oct_i)}")
+        elif archive[(ns_i, oct_i)].fitness < offspring.fitness:
+            print(f"{archive[(ns_i, oct_i)].id}, fitness: {archive[(ns_i, oct_i)].fitness} replaced by {offspring.id}, fitness: {offspring.fitness} at {(ns_i, oct_i)}")
+
     
     # save SVGs for elites
     for ind in elites:
