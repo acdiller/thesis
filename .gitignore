@@ -1,0 +1,14 @@
+# output/logging
+*.svg
+*.csv
+*.txt
+
+# python
+*.pyc
+__pycache__/
+.venv/
+
+# vs code
+*.code-workspace
+.vscode/
+*.json
