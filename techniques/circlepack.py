@@ -5,7 +5,7 @@ import shapely
 from base_technique import BaseTechnique
 
 class CirclePacking(BaseTechnique):
-    def __init__(self, rng, subdim, palette, n_spawn, max_failures, start_r, pad=1):
+    def __init__(self, rng, subdim, palette, n_spawn=None, max_failures=None, start_r=None, pad=2):
         super().__init__(rng, subdim, palette)
         self.n_spawn = n_spawn
         self.max_failures = max_failures
@@ -15,6 +15,16 @@ class CirclePacking(BaseTechnique):
         self.circles = []
     
 
+    def randomize_parameters(self):
+        self.n_spawn = self.rng.randint(1, 10)
+        self.max_failures = self.rng.randint(100, 200)
+        self.start_r = self.rng.randint(1, 5)
+
+    
+    def mutate(self):
+        pass
+
+    
     def spawn_circle(self):
         """
         Attempt to place new circle in a random, unoccupied location.
