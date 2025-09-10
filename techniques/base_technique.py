@@ -13,3 +13,11 @@ class BaseTechnique(ABC):
     @abstractmethod
     def draw(self, d):
         pass
+
+    @abstractmethod
+    def randomize_parameters(self):
+        pass
+
+    @abstractmethod
+    def mutate(self):
+        pass
