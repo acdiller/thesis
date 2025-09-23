@@ -17,16 +17,16 @@ def main():
     sd1 = (0, 0, 300, 300)
     sd2 = (300, 300, 300, 300)
 
-    #e = ElementaryCA(rng, sd2, test_palette, 20)
+    #e = ElementaryCA(rng, sd2, test_palette)
     #e.draw(d)
     #d.save_svg("test-eca.svg")
     
-    cp = CirclePacking(rng, sd1, test_palette, 1, 200, 2)
-    cp.randomize_parameters("pad")
-    #cp.draw(d)
+    cp = CirclePacking(rng, sd1, test_palette)
+    
+    cp.draw(d)
     #cp2 = CirclePacking(rng, sd2, test_palette, 1, 200, 2)
     #cp2.draw(d)
-    #d.save_svg("test-circlepack.svg")
+    d.save_svg("test-circlepack.svg")
 
 
 if __name__ == "__main__":

@@ -2,24 +2,30 @@ import drawsvg
 import shapely
 
 from base_technique import BaseTechnique
-
-fave_rules = [18, 22, 26, 30, 41, 45, 54, 57, 60, 62, 67, 73, 75, 86, 89, 90, 101,
-              105, 106, 107, 109, 110, 118, 121, 122, 126, 146, 150, 154]
+from params import eca_params, eca_randomizers
 
 class ElementaryCA(BaseTechnique):
     def __init__(self, rng, subdim, palette, cellsize=None, rule=None, init_state=None):
         super().__init__(rng, subdim, palette)
-        self.cellsize = cellsize
-        self.rule = rule
-        self.init_state = init_state
         
-        self.history = []
-    
+        if cellsize:
+            self.cellsize = cellsize
+        else:
+            self.cellsize = eca_randomizers['cellsize'](self.rng, (eca_params['cellsize'][0], eca_params['cellsize'][1]))
+        
+        if rule:
+            self.rule = rule
+        else:
+            self.rule = eca_randomizers['rule'](self.rng, eca_params['rule'])
 
-    def randomize_parameters(self):
-        self.cellsize = self.rng.randint(10, 40)
-        self.rule = self.rng.choice(fave_rules)
-        self.init_state = 'random' if self.rng.random() < 0.5 else 'single'
+        if init_state:
+            self.init_state = init_state
+        else:
+            self.init_state = eca_randomizers['init_state'](self.rng, eca_params['init_state'])
+        
+        self.ruleset = [int(n) for n in format(self.rule, '08b')]
+
+        self.history = []
 
 
     def mutate(self):
@@ -49,7 +55,6 @@ class ElementaryCA(BaseTechnique):
     
 
     def draw(self, d):
-        self.ruleset = [int(n) for n in format(self.rule, '08b')]
         cells = []
 
         num_cells = (self.width - 2) // self.cellsize

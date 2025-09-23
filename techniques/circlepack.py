@@ -3,13 +3,27 @@ import math
 import shapely
 
 from base_technique import BaseTechnique
+from params import cp_params, cp_randomizers
 
 class CirclePacking(BaseTechnique):
     def __init__(self, rng, subdim, palette, n_spawn=None, max_failures=None, start_r=None, pad=2):
         super().__init__(rng, subdim, palette)
-        self.n_spawn = n_spawn
-        self.max_failures = max_failures
-        self.start_r = start_r  # starting radius of new circles
+        
+        if n_spawn:
+            self.n_spawn = n_spawn
+        else:
+            self.n_spawn = cp_randomizers['n_spawn'](self.rng, (cp_params['n_spawn'][0], cp_params['n_spawn'][1]))
+
+        if max_failures:
+            self.max_failures = max_failures
+        else:
+            self.max_failures = cp_randomizers['max_failures'](self.rng, (cp_params['max_failures'][0], cp_params['max_failures'][1]))
+        
+        if start_r:
+            self.start_r = start_r  # starting radius of new circles
+        else:
+            self.start_r = cp_randomizers['start_r'](self.rng, (cp_params['start_r'][0], cp_params['start_r'][1]))
+
         self.pad = pad  # minimum spacing between circles
 
         self.circles = []
