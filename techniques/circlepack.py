@@ -28,12 +28,6 @@ class CirclePacking(BaseTechnique):
 
         self.circles = []
     
-
-    def randomize_parameters(self):
-        self.n_spawn = self.rng.randint(1, 10)
-        self.max_failures = self.rng.randint(100, 200)
-        self.start_r = self.rng.randint(1, 5)
-
     
     def mutate(self):
         pass

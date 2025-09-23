@@ -15,9 +15,5 @@ class BaseTechnique(ABC):
         pass
 
     @abstractmethod
-    def randomize_parameters(self):
-        pass
-
-    @abstractmethod
     def mutate(self):
         pass
