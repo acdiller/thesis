@@ -12,17 +12,17 @@ class CirclePacking(BaseTechnique):
         if n_spawn:
             self.n_spawn = n_spawn
         else:
-            self.n_spawn = cp_randomizers['n_spawn'](self.rng, (cp_params['n_spawn'][0], cp_params['n_spawn'][1]))
+            self.n_spawn = cp_randomizers['n_spawn'](self.rng, cp_params['n_spawn'])
 
         if max_failures:
             self.max_failures = max_failures
         else:
-            self.max_failures = cp_randomizers['max_failures'](self.rng, (cp_params['max_failures'][0], cp_params['max_failures'][1]))
+            self.max_failures = cp_randomizers['max_failures'](self.rng, cp_params['max_failures'])
         
         if start_r:
             self.start_r = start_r  # starting radius of new circles
         else:
-            self.start_r = cp_randomizers['start_r'](self.rng, (cp_params['start_r'][0], cp_params['start_r'][1]))
+            self.start_r = cp_randomizers['start_r'](self.rng, cp_params['start_r'])
 
         self.pad = pad  # minimum spacing between circles
 
@@ -30,8 +30,13 @@ class CirclePacking(BaseTechnique):
     
     
     def mutate(self):
-        pass
-
+        # randomly select mutatable parameter
+        p = self.rng.choice([key for key in cp_params])
+        # mutate parameter
+        new_val = cp_randomizers[p](self.rng, cp_params[p])
+        #print("parameter '" + p + "' mutated from " + str(getattr(self, p)) + " to " + str(new_val))
+        setattr(self, p, new_val)
+    
     
     def spawn_circle(self):
         """

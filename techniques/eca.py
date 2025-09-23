@@ -11,7 +11,7 @@ class ElementaryCA(BaseTechnique):
         if cellsize:
             self.cellsize = cellsize
         else:
-            self.cellsize = eca_randomizers['cellsize'](self.rng, (eca_params['cellsize'][0], eca_params['cellsize'][1]))
+            self.cellsize = eca_randomizers['cellsize'](self.rng, eca_params['cellsize'])
         
         if rule:
             self.rule = rule
@@ -29,7 +29,11 @@ class ElementaryCA(BaseTechnique):
 
 
     def mutate(self):
-        pass
+        # randomly select mutatable parameter
+        p = self.rng.choice([key for key in eca_params])
+        # mutate parameter
+        new_val = eca_randomizers[p](self.rng, eca_params[p])
+        setattr(self, p, new_val)
 
 
     def generate(self, cells):
