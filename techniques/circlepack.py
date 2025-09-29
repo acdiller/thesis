@@ -2,8 +2,8 @@ import drawsvg
 import math
 import shapely
 
-from base_technique import BaseTechnique
-from params import cp_params, cp_randomizers
+from .base_technique import BaseTechnique
+from .params import cp_params, cp_randomizers
 
 class CirclePacking(BaseTechnique):
     def __init__(self, rng, subdim, palette, n_spawn=None, max_failures=None, start_r=None, pad=2):

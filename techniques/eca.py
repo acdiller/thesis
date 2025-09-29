@@ -1,8 +1,8 @@
 import drawsvg
 import shapely
 
-from base_technique import BaseTechnique
-from params import eca_params, eca_randomizers
+from .base_technique import BaseTechnique
+from .params import eca_params, eca_randomizers
 
 class ElementaryCA(BaseTechnique):
     def __init__(self, rng, subdim, palette, cellsize=None, rule=None, init_state=None):
