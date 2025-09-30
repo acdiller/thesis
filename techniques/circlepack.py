@@ -46,8 +46,8 @@ class CirclePacking(BaseTechnique):
         failures = 0
         spawned = False
         while (not spawned) and failures < self.max_failures:
-            x = self.rng.randrange(buffer, self.width - buffer)
-            y = self.rng.randrange(buffer, self.height - buffer)
+            x = self.rng.randrange(buffer, int(self.width - buffer))
+            y = self.rng.randrange(buffer, int(self.height - buffer))
             x += self.origin['x']
             y += self.origin['y']
             #print(str(x) + ", " + str(y))

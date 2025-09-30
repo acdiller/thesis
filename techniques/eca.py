@@ -61,7 +61,7 @@ class ElementaryCA(BaseTechnique):
     def draw(self, d):
         cells = []
 
-        num_cells = (self.width - 2) // self.cellsize
+        num_cells = int((self.width - 2) // self.cellsize)
         cells = [0 for _ in range(num_cells)]
 
         if self.init_state == 'single':
