@@ -4,8 +4,8 @@ Standalone file to ensure that techniques work as expected.
 import drawsvg
 import random
 
-from eca import ElementaryCA
-from circlepack import CirclePacking
+from .eca import ElementaryCA
+from .circlepack import CirclePacking
 
 test_palette = ["#61E8E1", "#F25757", "#FFC145", "#1F5673"]
 
@@ -16,7 +16,7 @@ def main():
     d = drawsvg.Drawing(600, 600)
 
     sd1 = (0, 0, 300, 300)
-    sd2 = (300, 300, 300, 300)
+    sd2 = (300, 300, 600, 600)
 
     e = ElementaryCA(rng, sd2, test_palette)
     e.mutate()

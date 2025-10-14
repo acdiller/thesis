@@ -2,7 +2,7 @@ import drawsvg
 import shapely
 
 from .base_technique import BaseTechnique
-from .params import eca_params, eca_randomizers
+from .params import eca
 
 class ElementaryCA(BaseTechnique):
     def __init__(self, rng, subdim, palette, cellsize=None, rule=None, init_state=None):
@@ -11,17 +11,17 @@ class ElementaryCA(BaseTechnique):
         if cellsize:
             self.cellsize = cellsize
         else:
-            self.cellsize = eca_randomizers['cellsize'](self.rng, eca_params['cellsize'])
+            self.cellsize = eca['randomizers']['cellsize'](self.rng, eca['params']['cellsize'])
         
         if rule:
             self.rule = rule
         else:
-            self.rule = eca_randomizers['rule'](self.rng, eca_params['rule'])
+            self.rule = eca['randomizers']['rule'](self.rng, eca['params']['rule'])
 
         if init_state:
             self.init_state = init_state
         else:
-            self.init_state = eca_randomizers['init_state'](self.rng, eca_params['init_state'])
+            self.init_state = eca['randomizers']['init_state'](self.rng, eca['params']['init_state'])
         
         self.ruleset = [int(n) for n in format(self.rule, '08b')]
 
@@ -30,9 +30,9 @@ class ElementaryCA(BaseTechnique):
 
     def mutate(self):
         # randomly select mutatable parameter
-        p = self.rng.choice([key for key in eca_params])
+        p = self.rng.choice([key for key in eca['params']])
         # mutate parameter
-        new_val = eca_randomizers[p](self.rng, eca_params[p])
+        new_val = eca['randomizers'][p](self.rng, eca['params'][p])
         setattr(self, p, new_val)
 
 
