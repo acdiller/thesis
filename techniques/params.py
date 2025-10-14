@@ -1,5 +1,6 @@
 # dictionaries storing each technique's mutatable parameters, their associated ranges/sequences,
 # and the methods use to randomize a given parameter
+from math import pi
 
 cp = {
     'params': {
@@ -25,5 +26,18 @@ eca = {
         'cellsize': (lambda rng, range: rng.randint(range[0], range[1])),
         'rule': (lambda rng, sequence: rng.choice(sequence)),
         'init_state': (lambda rng, sequence: rng.choice(sequence))
+    }
+}
+
+linetiles = {
+    'params': {
+        'n_tiles': (3, 15),
+        'step': (5, 10),
+        'angle': (0, 2*pi)
+    },
+    'randomizers': {
+        'n_tiles': (lambda rng, range: rng.randint(range[0], range[1])),
+        'step': (lambda rng, range: rng.uniform(range[0], range[1])),
+        'angle': (lambda rng, range: rng.uniform(range[0], range[1]))
     }
 }
