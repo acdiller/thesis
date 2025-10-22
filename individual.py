@@ -6,7 +6,7 @@ class Individual:
         self.drawing = drawing
         self.techniques = techniques
 
-        self.num_elements = None
+        self.features = None
 
         self.isEvaluated = False
         self.fitness = 0.0

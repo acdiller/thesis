@@ -1,6 +1,8 @@
 import argparse
+import itertools
 import os
 import random
+import shapely
 
 from copy import deepcopy
 from drawsvg import Drawing
@@ -8,7 +10,7 @@ from drawsvg import Drawing
 from archive import Archive
 from individual import Individual
 from techniques import CirclePacking, ElementaryCA
-#from plotter import penplot
+from time import perf_counter
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--run_num", default=0, type=int, help="Run number.")
@@ -26,24 +28,44 @@ test_palette = ["#61E8E1", "#F25757", "#FFC145", "#1F5673"]
 
 
 def evaluate(ind):
-    num_elements = 0
+    n_elements = 0
     for t in ind.techniques:
         t.draw(ind.drawing)
-        num_elements += len(t.geoms)
+        n_elements += len(t.geoms)
 
+    ind.features = (len(ind.techniques), n_elements)
     ind.isEvaluated = True
-    return (len(ind.techniques), num_elements)
 
 
-def fitness_function(ind):
-    pass
+# fitness function - calculates every point of intersection between plot geometries
+def getOverlaps(ind):
+    all_geoms = []
+    for t in ind.techniques:
+        all_geoms += t.geoms
+    
+    shapely.prepare(all_geoms)
+    tree = shapely.strtree.STRtree(all_geoms)
+
+    intersections = []
+    for i in range(len(all_geoms)):
+        indices = tree.query(all_geoms[i], predicate='intersects')
+        local_intersections = [shapely.intersection(all_geoms[i], all_geoms[oi]) for oi in indices if i < oi]
+        for i in local_intersections:
+            if i.geom_type == 'Point':
+                intersections.append(i)
+            else:
+                intersections += i.geoms    # split MultiPoint into individual Points
+    
+    # TODO: how many points fall in a given spot?
+
+
 
 
 def mutation(ind):
     pass
 
 
-def init_individual(rng, all_techniques):
+def generateIndividual(rng, all_techniques):
     d = Drawing(DIM[0], DIM[1])
     
     #num_tech = rng.randint(2, 6)
@@ -80,7 +102,7 @@ def partition_canvas(dim, num_techniques):
 
 # TODO: determine palettes
 # create random initial population and add to archive
-def init_archive(rng, pop_size, archive, all_techniques):
+def initArchive(rng, pop_size, archive, all_techniques):
     for i in range(pop_size):
         id = f"0_{i}"
         d = Drawing(DIM[0], DIM[1])
@@ -118,7 +140,7 @@ def main():
     archive = Archive(fd_bins)
 
     #init_archive(shared_rng, pop_size, archive, techniques)
-    test_ind = init_individual(shared_rng, techniques)
+    test_ind = generateIndividual(shared_rng, techniques)
 
     behaviour = evaluate(test_ind)
     print(behaviour)
@@ -128,27 +150,20 @@ def main():
 
 if __name__ == "__main__":
     #main()
-    w = DIM[0]
-    h = DIM[1]
-
-    sd1 = (0, 0, w/2, h/2)
-    sd2 = (w/2, 0, w, h/2)
-    sd3 = (0, h/2, w/2, h)
-    sd4 = (w/2, h/2, w, h)
-
     rng = random.Random(22)
+    techniques = [CirclePacking, ElementaryCA]
 
-    cp1 = CirclePacking(rng, sd1, test_palette)
-    eca1 = ElementaryCA(rng, sd2, test_palette)
-    cp2 = CirclePacking(rng, sd4, test_palette)
-    eca2 = ElementaryCA(rng, sd3, test_palette)
+    test_ind = generateIndividual(rng, techniques)
+    evaluate(test_ind)
 
-    d = Drawing(DIM[0], DIM[1])
+    #test_ind.drawing.save_svg("test-individual.svg")
+    print("number of techniques: " + str(test_ind.features[0]))
+    print("number of elements: " + str(test_ind.features[1]))
 
-    test_ind = Individual(1, rng, DIM, d, [cp1, eca1, eca2, cp2])
-
-    for t in test_ind.techniques:
-        t.draw(test_ind.drawing)
+    start = perf_counter()
+    n_intersections = getOverlaps(test_ind)
+    end = perf_counter()
     
-    test_ind.drawing.save_svg("partitioned-test-ind.svg")
-
+    coords = shapely.get_coordinates(n_intersections).tolist()
+    print("number of intersections: " + str(len(coords)))
+    print("time to find intersections: " + str(end-start) + "s")
