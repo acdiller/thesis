@@ -119,7 +119,26 @@ def initArchive(rng, pop_size, archive, all_techniques):
 
 
 
-        
+def createSVG(ind):
+    xml_preamble = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    svg_root = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"\n \twidth="' + str(w) + '" height="' + str(h) + '" viewBox="0 0 ' + str(w) + ' ' + str(h) + '">\n'
+    svg_close = '</svg>'
+
+    all_geoms = []
+    for t in ind.techniques:
+        all_geoms += t.geoms
+    
+    # TODO: devise specific filenaming pattern
+    filename = "test.svg"
+    
+    with open(filename, "w") as f:
+        f.write(xml_preamble)
+        f.write(svg_root)
+        for g in all_geoms:
+            # TODO: color assignment
+            colour = random.choice(palette)
+            f.write(g.svg(scale_factor=0.5, stroke_color=colour, opacity=1.0) + '\n')
+        f.write(svg_close)
 
 
 def main():
