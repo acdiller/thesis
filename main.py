@@ -121,6 +121,8 @@ def initArchive(rng, pop_size, archive, all_techniques):
 
 def createSVG(ind):
     xml_preamble = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    w = ind.dim[0]
+    h = ind.dim[1]
     svg_root = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"\n \twidth="' + str(w) + '" height="' + str(h) + '" viewBox="0 0 ' + str(w) + ' ' + str(h) + '">\n'
     svg_close = '</svg>'
 
