@@ -46,19 +46,26 @@ def getOverlaps(ind):
     shapely.prepare(all_geoms)
     tree = shapely.strtree.STRtree(all_geoms)
 
-    intersections = []
+    intersections = set()
     for i in range(len(all_geoms)):
+        # get indices for anything that intersects with current geom
         indices = tree.query(all_geoms[i], predicate='intersects')
+        # calculate specific intersection between current geom and other geoms
         local_intersections = [shapely.intersection(all_geoms[i], all_geoms[oi]) for oi in indices if i < oi]
-        for i in local_intersections:
-            if i.geom_type == 'Point':
-                intersections.append(i)
+        
+        # filter intersection geometries into individual parts
+        for g in local_intersections:
+            if isinstance(g, shapely.MultiPoint) or isinstance(g, shapely.MultiLineString):
+                intersections.update(g.geoms)   # split MultiPoint or MultiLineString into individual parts
             else:
-                intersections += i.geoms    # split MultiPoint into individual Points
+                intersections.add(g)   # add single Point/LineString 
     
-    # TODO: how many points fall in a given spot?
-
-
+    mostOverlaps = 0
+    for g in intersections:
+        # get indices for anything that intersects with the buffered intersection - aka how many things touch at that spot
+        indices = tree.query(g.buffer(ind.penwidth/2), predicate='intersects')
+        mostOverlaps = max(mostOverlaps, len(indices))
+    return mostOverlaps
 
 
 def mutation(ind):
