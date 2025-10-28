@@ -29,6 +29,25 @@ eca = {
     }
 }
 
+ff = {
+    'params': {
+        'style': ['flowy', 'edgy'],
+        'resolution': (3, 6),
+        'noisescale': (300, 800),
+        'octaves': (2, 8),
+        'persistence': (0.25, 0.75),
+        'lacunarity': (1.5, 2.5)
+    },
+    'randomizers': {
+        'style': (lambda rng, sequence: rng.choice(sequence)),
+        'resolution': (lambda rng, range: rng.randint(range[0], range[1])),
+        'noisescale': (lambda rng, range: rng.randint(range[0], range[1])),
+        'octaves': (lambda rng, range: rng.randint(range[0], range[1])),
+        'persistence': (lambda rng, range: round(rng.uniform(range[0], range[1]))),
+        'lacunarity': (lambda rng, range: round(rng.uniform(range[0], range[1])))
+    }
+}
+
 linetiles = {
     'params': {
         'n_tiles': (3, 15),
