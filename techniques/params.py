@@ -43,8 +43,8 @@ ff = {
         'resolution': (lambda rng, range: rng.randint(range[0], range[1])),
         'noisescale': (lambda rng, range: rng.randint(range[0], range[1])),
         'octaves': (lambda rng, range: rng.randint(range[0], range[1])),
-        'persistence': (lambda rng, range: round(rng.uniform(range[0], range[1]))),
-        'lacunarity': (lambda rng, range: round(rng.uniform(range[0], range[1])))
+        'persistence': (lambda rng, range: round(rng.uniform(range[0], range[1]), 2)),
+        'lacunarity': (lambda rng, range: round(rng.uniform(range[0], range[1]), 2))
     }
 }
 
