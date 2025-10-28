@@ -1,4 +1,3 @@
-import drawsvg
 import math
 import shapely
 
@@ -90,7 +89,7 @@ class CirclePacking(BaseTechnique):
         return circle_collision or edge_collision
     
 
-    def draw(self, d):
+    def draw(self):
         terminated = False
         while not terminated:
             for _ in range(self.n_spawn):
@@ -112,9 +111,5 @@ class CirclePacking(BaseTechnique):
                 cy = c['y']
                 r = c['r']
                 colour = c['colour']
-                # add to SVG
-                d.append(drawsvg.Circle(cx, cy, r,
-                                        fill='none', stroke=colour, stroke_weight=1))
                 # approximate circles as point buffers 
                 self.geoms.append(shapely.Point(cx, cy).buffer(r).boundary)
-        return d

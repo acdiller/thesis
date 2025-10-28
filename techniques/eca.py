@@ -1,4 +1,3 @@
-import drawsvg
 import shapely
 
 from .base_technique import BaseTechnique
@@ -58,7 +57,7 @@ class ElementaryCA(BaseTechnique):
         return self.ruleset[7 - index]
     
 
-    def draw(self, d):
+    def draw(self):
         cells = []
 
         num_cells = int((self.width - 2) // self.cellsize)
@@ -90,8 +89,5 @@ class ElementaryCA(BaseTechnique):
 
                     colour = self.rng.choice(self.palette)
                     pad = 2   # offset so lines don't overlap
-                    d.append(drawsvg.Rectangle(x + pad, y + pad , self.cellsize - pad, self.cellsize - pad,
-                                       fill='none', stroke=colour, stroke_weight=1))
                     
                     self.geoms.append(shapely.box(x + pad, y + pad, (x + self.cellsize - pad), (y + self.cellsize - pad)).boundary)
-        return d

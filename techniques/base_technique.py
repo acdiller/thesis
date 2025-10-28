@@ -11,7 +11,7 @@ class BaseTechnique(ABC):
         self.geoms = []
     
     @abstractmethod
-    def draw(self, d):
+    def draw(self):
         pass
 
     @abstractmethod

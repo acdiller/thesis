@@ -67,7 +67,7 @@ class FlowField(BaseTechnique):
             self.particles.append(Particle(x, y, self.rng.choice(self.palette)))
 
 
-    def draw(self, d):
+    def draw(self):
         self.add_particles()
 
         for p in self.particles:
