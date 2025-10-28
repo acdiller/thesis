@@ -5,8 +5,8 @@ from .base_technique import BaseTechnique
 from .params import cp
 
 class CirclePacking(BaseTechnique):
-    def __init__(self, rng, subdim, palette, n_spawn=None, max_failures=None, start_r=None, pad=2):
-        super().__init__(rng, subdim, palette)
+    def __init__(self, rng, subdim, n_spawn=None, max_failures=None, start_r=None, pad=2):
+        super().__init__(rng, subdim)
         
         if n_spawn:
             self.n_spawn = n_spawn

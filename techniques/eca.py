@@ -4,8 +4,8 @@ from .base_technique import BaseTechnique
 from .params import eca
 
 class ElementaryCA(BaseTechnique):
-    def __init__(self, rng, subdim, palette, cellsize=None, rule=None, init_state=None):
-        super().__init__(rng, subdim, palette)
+    def __init__(self, rng, subdim, cellsize=None, rule=None, init_state=None):
+        super().__init__(rng, subdim)
         
         if cellsize:
             self.cellsize = cellsize
