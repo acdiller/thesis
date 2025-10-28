@@ -91,3 +91,8 @@ class ElementaryCA(BaseTechnique):
                     pad = 2   # offset so lines don't overlap
                     
                     self.geoms.append(shapely.box(x + pad, y + pad, (x + self.cellsize - pad), (y + self.cellsize - pad)).boundary)
+    
+
+    def __str__(self):
+        cls_name = type(self).__name__
+        return f"{cls_name}(cellsize={self.cellsize}, rule={self.rule}, init_state={self.init_state})"

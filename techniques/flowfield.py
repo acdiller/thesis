@@ -7,6 +7,14 @@ from .base_technique import BaseTechnique
 from .params import ff
 from .technique_utils import p5map, constrain
 
+
+class Particle():
+    def __init__(self, x, y, life=None):
+        self.x = x
+        self.y = y
+        self.life = life
+
+
 class FlowField(BaseTechnique):
     def __init__(self, rng, subdim, style=None, resolution=None, noisescale=None, octaves=None, persistence=None, lacunarity=None):
         super().__init__(rng, subdim)
@@ -58,29 +66,35 @@ class FlowField(BaseTechnique):
             y = 0 if self.rng.random() < 0.5 else self.height
             #p = {'x': x, 'y': y, 'colour': self.rng.choice(self.palette)}
             #self.particles.append(p)
-            self.particles.append(Particle(x, y, self.rng.choice(self.palette)))
+            self.particles.append(Particle(x, y))
         
         for y in range(0, self.height, self.resolution):
             x = 0 if self.rng.random() < 0.5 else self.width
             #p = {'x': x, 'y': y, 'colour': self.rng.choice(self.palette)}
             #self.particles.append(p)
-            self.particles.append(Particle(x, y, self.rng.choice(self.palette)))
+            self.particles.append(Particle(x, y))
 
 
     def random_particles(self):
         n = (self.width//self.resolution) + (self.height//self.resolution)
         for _ in range(n):
-            x = 
+            x = self.rng.randrange(0, self.width)
+            y = self.rng.randrange(0, self.height)
+            self.particles.append(Particle(x, y))
+
+
+    def in_bounds(self, p):
+        return (p.x >= 0) and (p.x < self.width) and (p.y >= 0) and (p.y < self.height)
 
 
     def draw(self):
-        self.add_particles()
+        self.random_particles()
 
         for p in self.particles:
             points = []
             points.append((p.x, p.y))
 
-            while (p.x >= 0) and (p.x < self.width) and (p.y >= 0) and (p.y < self.height):
+            while self.in_bounds(p):
                 noiseval = pnoise2(p.x / self.noisescale, p.y / self.noisescale, self.octaves, self.persistence, self.lacunarity)
                 
                 angle = None
@@ -96,11 +110,9 @@ class FlowField(BaseTechnique):
                 points.append((constrain(p.x, 0, self.width), constrain(p.y, 0, self.height)))
             if len(points) > 20:
                 self.geoms.append(shapely.LineString(points))
-            
+    
 
-
-class Particle():
-    def __init__(self, x, y, colour):
-        self.x = x
-        self.y = y
-        self.colour = colour
+    def __str__(self):
+        cls_name = type(self).__name__
+        return (f"{cls_name}(style={self.style}, resolution={self.resolution}, noisescale={self.noisescale}, "\
+                f"octaves={self.octaves}, persistence={self.persistence}, lacunarity={self.lacunarity})")

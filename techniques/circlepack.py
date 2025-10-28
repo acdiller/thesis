@@ -113,3 +113,9 @@ class CirclePacking(BaseTechnique):
                 colour = c['colour']
                 # approximate circles as point buffers 
                 self.geoms.append(shapely.Point(cx, cy).buffer(r).boundary)
+    
+
+    def __str__(self):
+        cls_name = type(self).__name__
+        return (f"{cls_name}(n_spawn={self.n_spawn}, max_failures={self.max_failures}, " \
+                f"start_r={self.start_r}, pad={self.pad})")
