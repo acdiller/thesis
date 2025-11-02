@@ -1,7 +1,7 @@
 import shapely
 
-from .base_technique import BaseTechnique
-from .params import eca
+from algorithmic_art.techniques.base_technique import BaseTechnique
+from algorithmic_art.techniques.params import eca
 
 class ElementaryCA(BaseTechnique):
     def __init__(self, rng, subdim, cellsize=None, rule=None, init_state=None):

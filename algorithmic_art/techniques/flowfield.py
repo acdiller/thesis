@@ -3,8 +3,8 @@ import shapely
 
 from noise import pnoise2, snoise2
 
-from .base_technique import BaseTechnique
-from .params import ff
+from algorithmic_art.techniques.base_technique import BaseTechnique
+from algorithmic_art.techniques.params import ff
 from algorithmic_art.tools.art_utils import p5map, constrain
 
 

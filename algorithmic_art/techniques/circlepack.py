@@ -1,8 +1,8 @@
 import math
 import shapely
 
-from .base_technique import BaseTechnique
-from .params import cp
+from algorithmic_art.techniques.base_technique import BaseTechnique
+from algorithmic_art.techniques.params import cp
 
 class CirclePacking(BaseTechnique):
     def __init__(self, rng, subdim, n_spawn=None, max_failures=None, start_r=None, pad=2):

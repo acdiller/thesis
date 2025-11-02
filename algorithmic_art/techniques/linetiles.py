@@ -1,8 +1,7 @@
-import drawsvg
 import shapely
 
-from .base_technique import BaseTechnique
-from .params import linetiles
+from algorithmic_art.techniques.base_technique import BaseTechnique
+from algorithmic_art.techniques.params import linetiles
 
 class LineTiles(BaseTechnique):
     def __init__(self, rng, subdim, palette, n_tiles=None, step=None, angle=None):
