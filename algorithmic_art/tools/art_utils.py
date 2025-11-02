@@ -5,4 +5,3 @@ def p5map(n, start1, stop1, start2, stop2):
 # constrain value to range
 def constrain(val, min_val, max_val):
     return min(max_val, max(min_val, val))
-

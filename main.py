@@ -9,7 +9,7 @@ from drawsvg import Drawing
 
 from archive import Archive
 from individual import Individual
-from techniques import CirclePacking, ElementaryCA
+from techniques import CirclePacking, ElementaryCA, FlowField
 from time import perf_counter
 
 parser = argparse.ArgumentParser()
@@ -30,7 +30,7 @@ test_palette = ["#61E8E1", "#F25757", "#FFC145", "#1F5673"]
 def evaluate(ind):
     n_elements = 0
     for t in ind.techniques:
-        t.draw(ind.drawing)
+        t.draw()
         n_elements += len(t.geoms)
 
     ind.features = (len(ind.techniques), n_elements)
@@ -138,7 +138,7 @@ def createSVG(ind):
         f.write(svg_root)
         for g in all_geoms:
             # TODO: color assignment
-            colour = random.choice(palette)
+            colour = random.choice(test_palette)
             f.write(g.svg(scale_factor=0.5, stroke_color=colour, opacity=1.0) + '\n')
         f.write(svg_close)
 
@@ -179,19 +179,20 @@ def main():
 if __name__ == "__main__":
     #main()
     rng = random.Random(22)
-    techniques = [CirclePacking, ElementaryCA]
+    #techniques = [CirclePacking, ElementaryCA]
 
-    test_ind = generateIndividual(rng, techniques)
+    #test_ind = generateIndividual(rng, techniques)
+    test_ind = Individual(1, rng, DIM, 0.94, [FlowField(rng, (0, 0, DIM[0], DIM[1]), test_palette, style='flowy')])
     evaluate(test_ind)
 
     #test_ind.drawing.save_svg("test-individual.svg")
     print("number of techniques: " + str(test_ind.features[0]))
     print("number of elements: " + str(test_ind.features[1]))
 
+    createSVG(test_ind)
     start = perf_counter()
-    n_intersections = getOverlaps(test_ind)
+    mostOverlaps = getOverlaps(test_ind)
     end = perf_counter()
     
-    coords = shapely.get_coordinates(n_intersections).tolist()
-    print("number of intersections: " + str(len(coords)))
-    print("time to find intersections: " + str(end-start) + "s")
+    print("highest number of overlaps: " + str(mostOverlaps))
+    print("time to find: " + str(end-start) + "s")

@@ -5,7 +5,7 @@ from noise import pnoise2, snoise2
 
 from .base_technique import BaseTechnique
 from .params import ff
-from .technique_utils import p5map, constrain
+from algorithmic_art.tools.art_utils import p5map, constrain
 
 
 class Particle():
@@ -80,7 +80,7 @@ class FlowField(BaseTechnique):
         for _ in range(n):
             x = self.rng.randrange(0, self.width)
             y = self.rng.randrange(0, self.height)
-            self.particles.append(Particle(x, y))
+            self.particles.append(Particle(x, y, 200))
 
 
     def in_bounds(self, p):
@@ -88,13 +88,14 @@ class FlowField(BaseTechnique):
 
 
     def draw(self):
+        #self.edge_particles()
         self.random_particles()
 
         for p in self.particles:
             points = []
             points.append((p.x, p.y))
 
-            while self.in_bounds(p):
+            while self.in_bounds(p) and (p.life > 0 if p.life is not None else True):
                 noiseval = pnoise2(p.x / self.noisescale, p.y / self.noisescale, self.octaves, self.persistence, self.lacunarity)
                 
                 angle = None
@@ -108,6 +109,10 @@ class FlowField(BaseTechnique):
 
                 #points.append((p.x, p.y))
                 points.append((constrain(p.x, 0, self.width), constrain(p.y, 0, self.height)))
+
+                if p.life is not None:
+                    p.life -= 1
+
             if len(points) > 20:
                 self.geoms.append(shapely.LineString(points))
     
