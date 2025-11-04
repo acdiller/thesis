@@ -1,5 +1,5 @@
 """
-Standalone file to ensure that techniques work as expected.
+Standalone file to ensure that techniques/tools work as expected.
 """
 import random
 
