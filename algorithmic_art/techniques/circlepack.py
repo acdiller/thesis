@@ -3,10 +3,13 @@ import shapely
 
 from algorithmic_art.techniques.base_technique import BaseTechnique
 from algorithmic_art.techniques.params import cp
+from algorithmic_art.tools.shapes import circle, circular_sinewave
 
 class CirclePacking(BaseTechnique):
     def __init__(self, rng, subdim, n_spawn=None, max_failures=None, start_r=None, pad=2):
         super().__init__(rng, subdim)
+        
+        self.pad = pad  # minimum spacing between elements
         
         if n_spawn:
             self.n_spawn = n_spawn
@@ -22,8 +25,6 @@ class CirclePacking(BaseTechnique):
             self.start_r = start_r  # starting radius of new circles
         else:
             self.start_r = cp['randomizers']['start_r'](self.rng, cp['params']['start_r'])
-
-        self.pad = pad  # minimum spacing between circles
 
         self.circles = []
     
@@ -49,7 +50,6 @@ class CirclePacking(BaseTechnique):
             y = self.rng.randrange(buffer, int(self.height - buffer))
             x += self.origin['x']
             y += self.origin['y']
-            #print(str(x) + ", " + str(y))
 
             if self.collision({'x': x, 'y': y, 'r': self.start_r}):
                 failures += 1
@@ -59,8 +59,7 @@ class CirclePacking(BaseTechnique):
                     'x': x,
                     'y': y,
                     'r': self.start_r,
-                    'growing': True,
-                    'colour': self.rng.choice(self.palette)
+                    'growing': True
                 }
                 self.circles.append(c)
                 spawned = True
@@ -110,9 +109,9 @@ class CirclePacking(BaseTechnique):
                 cx = c['x']
                 cy = c['y']
                 r = c['r']
-                colour = c['colour']
                 # approximate circles as point buffers 
-                self.geoms.append(shapely.Point(cx, cy).buffer(r).boundary)
+                #self.geoms.append(circular_sinewave(cx, cy, r, 12, 4))
+                self.geoms.append(circle(cx, cy, r))
     
 
     def __str__(self):

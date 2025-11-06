@@ -45,16 +45,16 @@ def main():
     #createSVG(ff)
     #print(ff)
 
-    #e = ElementaryCA(rng, sd)
-    #print(e)
+    e = ElementaryCA(rng, sd)
     #e.mutate()
-    #e.draw()
+    e.draw()
+    createSVG(e, filename="eca-test.svg")
     
-    cp = CirclePacking(rng, sd)
+    #cp = CirclePacking(rng, sd)
     #print(cp)
     #cp.mutate()
-    cp.draw()
-    createSVG(cp, filename="cp-test.svg")
+    #cp.draw()
+    #createSVG(cp, filename="cp-test.svg")
 
     n = 200
     c = 10

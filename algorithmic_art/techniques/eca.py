@@ -2,11 +2,14 @@ import shapely
 
 from algorithmic_art.techniques.base_technique import BaseTechnique
 from algorithmic_art.techniques.params import eca
+from algorithmic_art.tools.shapes import rect
 
 class ElementaryCA(BaseTechnique):
-    def __init__(self, rng, subdim, cellsize=None, rule=None, init_state=None):
+    def __init__(self, rng, subdim, cellsize=None, rule=None, init_state=None, pad=2):
         super().__init__(rng, subdim)
         
+        self.pad = pad  # minimum spacing between elements
+
         if cellsize:
             self.cellsize = cellsize
         else:
@@ -86,11 +89,8 @@ class ElementaryCA(BaseTechnique):
                 if generation[i] == 1:
                     x = self.origin['x'] + (i * self.cellsize)
                     y = self.origin['y'] + (g * self.cellsize)
-
-                    colour = self.rng.choice(self.palette)
-                    pad = 2   # offset so lines don't overlap
                     
-                    self.geoms.append(shapely.box(x + pad, y + pad, (x + self.cellsize - pad), (y + self.cellsize - pad)).boundary)
+                    self.geoms.append(rect(x + self.pad, y + self.pad, self.cellsize - self.pad, self.cellsize - self.pad))
     
 
     def __str__(self):
