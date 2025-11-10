@@ -5,13 +5,15 @@ from math import pi
 cp = {
     'params': {
         'n_spawn': (1, 10),
-        'max_failures': (100, 200),
-        'start_r': (1, 5)
+        'max_failures': (100, 250),
+        'start_r': (5, 10),
+        'shape_type': ['circle', 'sinewave']
     },
     'randomizers': {
         'n_spawn': (lambda rng, range: rng.randint(range[0], range[1])),
         'max_failures': (lambda rng, range: rng.randint(range[0], range[1])),
-        'start_r': (lambda rng, range: rng.randint(range[0], range[1]))
+        'start_r': (lambda rng, range: rng.randint(range[0], range[1])),
+        'shape_type': (lambda rng, sequence: rng.choice(sequence))
     }
 }
 
