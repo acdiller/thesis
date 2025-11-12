@@ -1,5 +1,3 @@
-import shapely
-
 from algorithmic_art.techniques.base_technique import BaseTechnique
 from algorithmic_art.techniques.params import eca
 from algorithmic_art.tools.shapes import rect
