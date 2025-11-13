@@ -62,3 +62,20 @@ linetiles = {
         'angle': (lambda rng, range: rng.uniform(range[0], range[1]))
     }
 }
+
+radlines = {
+    'params': {
+        'n_lines': (50, 100),
+        'line_length': (50, 200),
+        'base_r': (10, 50),
+        'shift': (5, 20),
+        'shiftstep': (5, 10)
+    },
+    'randomizers': {
+        'n_lines': (lambda rng, range: rng.randint(range[0], range[1])),
+        'line_length': (lambda rng, range: rng.randint(range[0], range[1])),
+        'base_r': (lambda rng, range: rng.randint(range[0], range[1])),
+        'shift': (lambda rng, range: rng.randint(range[0], range[1])),
+        'shiftstep': (lambda rng, range: rng.randint(range[0], range[1]))
+    }
+}

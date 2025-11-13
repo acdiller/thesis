@@ -7,10 +7,11 @@ from algorithmic_art.techniques import (
     CirclePacking,
     ElementaryCA,
     FlowField,
-    Phyllotaxis
+    Phyllotaxis,
+    RadialLines
 )
 
-from algorithmic_art.tools.shapes import hexagon
+from algorithmic_art.tools.shapes import hexagon, rect
 
 DIM = (1054, 816)   # US letter paper at 96 DPI
 test_palette = ["#61E8E1", "#F25757", "#FFC145", "#1F5673"]
@@ -27,7 +28,7 @@ def createSVG(ind=None, elems=None, filename="test.svg"):
         geoms = ind.geoms
     else:
         geoms = elems
-    
+        
     with open(filename, "w") as f:
         f.write(xml_preamble)
         f.write(svg_root)
@@ -42,9 +43,8 @@ def main():
     rng = random.Random()
     rng.seed(12)
 
-    #sd = (0, 0, DIM[0], DIM[1])
-    #sd = (0, 0, DIM[0]/4, DIM[1]/4)
-    sd = (DIM[0]/2, DIM[1]/2, DIM[0], DIM[1])
+    sd = (0, 0, DIM[0], DIM[1])
+    #sd = (DIM[0]/2, DIM[1]/2, DIM[0], DIM[1])
 
     #ff = FlowField(rng, sd, style='flowy')
     #ff.draw()
@@ -56,11 +56,10 @@ def main():
     #e.draw()
     #createSVG(e, filename="eca-test.svg")
     
-    cp = CirclePacking(rng, sd, shape_type="sinewave")
+    #cp = CirclePacking(rng, sd, shape_type="sinewave")
     #cp.mutate()
-    cp.draw()
-    print(cp)
-    createSVG(cp, filename="cp-sinewave-test.svg")
+    #cp.draw()
+    #createSVG(cp, filename="cp-sinewave-test.svg")
 
     n = 200
     c = 10
@@ -75,6 +74,12 @@ def main():
 
     #h = hexagon(100, 100, 100)
     #createSVG(elems=[h])
+
+    rad = RadialLines(rng, sd)
+    rad.draw()
+    createSVG(rad, filename="radial-lines-test.svg")
+    print(rad)
+    
 
 
 
