@@ -7,6 +7,7 @@ from algorithmic_art.techniques import (
     CirclePacking,
     ElementaryCA,
     FlowField,
+    LineTiles,
     Phyllotaxis,
     RadialLines
 )
@@ -28,6 +29,8 @@ def createSVG(ind=None, elems=None, filename="test.svg"):
         geoms = ind.geoms
     else:
         geoms = elems
+
+    geoms.append(rect(0, 0, w, h))
         
     with open(filename, "w") as f:
         f.write(xml_preamble)
@@ -75,10 +78,15 @@ def main():
     #h = hexagon(100, 100, 100)
     #createSVG(elems=[h])
 
-    rad = RadialLines(rng, sd)
-    rad.draw()
-    createSVG(rad, filename="radial-lines-test.svg")
-    print(rad)
+    #rad = RadialLines(rng, sd)
+    #rad.draw()
+    #createSVG(rad, filename="radial-lines-test.svg")
+    #print(rad)
+
+    lt = LineTiles(rng, sd, step=5.0, noise_based=False)
+    lt.draw()
+    print(lt.tilesize)
+    createSVG(lt, filename="linetiles-test.svg")
     
 
 

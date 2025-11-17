@@ -1,33 +1,54 @@
+import math
+
 import shapely
+import numpy as np
+from noise import pnoise2
 
 from algorithmic_art.techniques.base_technique import BaseTechnique
-from algorithmic_art.techniques.params import linetiles
+from algorithmic_art.techniques.params import ltiles
+from algorithmic_art.tools.art_utils import p5map
 
 class LineTiles(BaseTechnique):
-    def __init__(self, rng, subdim, palette, n_tiles=None, step=None, angle=None):
-        super().__init__(rng, subdim, palette)
+    def __init__(self, rng, subdim, tilesize=None, step=None, skip_chance=None, repeat_chance=None, noise_based=None, noisescale=None):
+        super().__init__(rng, subdim)
 
-        if n_tiles:
-            self.n_tiles = n_tiles
+        if tilesize:
+            self.tilesize = tilesize
         else:
-            self.n_tiles = linetiles['randomizers']['n_tiles'](self.rng, linetiles['params']['n_tiles'])
+            self.tilesize = ltiles['randomizers']['tilesize'](self.rng, ltiles['params']['tilesize'])
         
         if step:
             self.step = step
         else:
-            self.step = linetiles['randomizers']['step'](self.rng, linetiles['params']['step'])
+            self.step = ltiles['randomizers']['step'](self.rng, ltiles['params']['step'])
         
-        if angle:
-            self.angle = angle
+        if skip_chance:
+            self.skip_chance = skip_chance
         else:
-            self.angle = linetiles['randomizers']['angle'](self.rng, linetiles['params']['angle'])
+            self.skip_chance = ltiles['randomizers']['skip_chance'](self.rng, ltiles['params']['skip_chance'])
+        
+        if repeat_chance:
+            self.repeat_chance = repeat_chance
+        else:
+            self.repeat_chance = ltiles['randomizers']['repeat_chance'](self.rng, ltiles['params']['repeat_chance'])
+        
+        if noise_based:
+            self.noise_based = noise_based
+        else:
+            self.noise_based = ltiles['randomizers']['noise_based'](self.rng, ltiles['params']['noise_based'])
+        
+        # only assign noisescale if noise_based is true
+        if self.noise_based and noisescale:
+            self.noisescale = noisescale
+        elif self.noise_based:
+            self.noisescale = ltiles['randomizers']['noisescale'](self.rng, ltiles['params']['noisescale'])
     
 
     def mutate(self):
         # randomly select mutatable parameter
-        p = self.rng.choice([key for key in linetiles['params']])
+        p = self.rng.choice([key for key in ltiles['params'] if getattr(self, key) is not None])
         # mutate parameter
-        new_val = linetiles['randomizers'][p](self.rng, linetiles['params'][p])
+        new_val = ltiles['randomizers'][p](self.rng, ltiles['params'][p])
         #print("parameter '" + p + "' mutated from " + str(getattr(self, p)) + " to " + str(new_val))
         setattr(self, p, new_val)
     
@@ -49,13 +70,16 @@ class LineTiles(BaseTechnique):
         if y < ymin:
             code |= (1 << 0)   # above clip window
         elif y > ymax:
-            code |= (1<< 1)    # below clip window
+            code |= (1 << 1)    # below clip window
         
         return code
     
 
-    def line_clip(self, x0, y0, x1, y1, clipx, clipy, clipw, cliph):
-        e0code, e1code = None
+    def line_clip(self, x0, y0, x1, y1, clipx, clipy):
+        clipw = self.tilesize
+        cliph = self.tilesize
+        e0code = None
+        e1code = None
 
         # calculate min and max coordinates of clip window
         xmin = clipx
@@ -81,7 +105,8 @@ class LineTiles(BaseTechnique):
             else:
                 # pick an endpoint outside clip window
                 code = e0code if (e0code != 0) else e1code
-                newx, newy = 0
+                newx = 0
+                newy = 0
 
                 # find new endpoint to replace the current one
                 if (code & (1 << 3)) != 0:
@@ -109,12 +134,52 @@ class LineTiles(BaseTechnique):
                     x1 = newx
                     y1 = newy
         
-        return accept, x0, y0, x1, y1
+        d = math.dist([x0, y0], [x1, y1])   # cull very short line segments
+        if accept and d > 5.0:
+            self.geoms.append(shapely.LineString([[x0, y0], [x1, y1]]))
+        
+        return accept
     
 
-    def draw(self, d):
-        tilesize = min(self.width, self.height) / self.n_tiles
+    def draw_tile(self, x, y, a):
+        xstart = x + self.tilesize
+        ystart = y + self.tilesize
 
-        for y in range(0, self.height, tilesize):
-            for x in range(0, self.width, tilesize):
+        slope = math.tan(a)
+        c = ystart - slope * xstart
+
+        down_accept = True
+        up_accept = True
+        i = 0
+        while (down_accept or up_accept):
+            x0 = x - self.tilesize / 2
+            y0 = slope * x0 + c + i * self.step / math.cos(a)
+            x1 =  x + self.tilesize + self.tilesize / 2
+            y1 = slope * x1 + c + i * self.step / math.cos(a)
+            up_accept = self.line_clip(x0, y0, x1, y1, x, y)
+
+            x0 = x - self.tilesize / 2
+            y0 = slope * x0 + c - i * self.step / math.cos(a)
+            x1 = x + self.tilesize + self.tilesize / 2
+            y1 = slope * x1 + c - i * self.step / math.cos(a)
+            down_accept = self.line_clip(x0, y0, x1, y1, x, y)
+
+            i += 1
+
+    
+
+    def draw(self):
+        for j in range(self.height // self.tilesize):
+            for i in range(self.width // self.tilesize):
+                a = None
+                if self.noise_based:
+                    noiseval = pnoise2(x / self.noisescale, y / self.noisescale)
+                    a = p5map(noiseval, 0.0, 1.0, 0.0, math.tau)
+                else:
+                    a = self.rng.uniform(0.0, math.tau)
                 
+                x = i * self.tilesize
+                y = j * self.tilesize
+
+                self.draw_tile(x, y, a)
+

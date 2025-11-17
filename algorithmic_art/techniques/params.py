@@ -50,16 +50,22 @@ ff = {
     }
 }
 
-linetiles = {
+ltiles = {
     'params': {
-        'n_tiles': (3, 15),
-        'step': (5, 10),
-        'angle': (0, 2*pi)
+        'tilesize': (30, 80),
+        'step': (4.0, 8.0),
+        'skip_chance': (0.0, 0.60),
+        'repeat_chance': (0.0, 0.40),
+        'noise_based': [True, False],
+        'noisescale': (300, 800)
     },
     'randomizers': {
-        'n_tiles': (lambda rng, range: rng.randint(range[0], range[1])),
-        'step': (lambda rng, range: rng.uniform(range[0], range[1])),
-        'angle': (lambda rng, range: rng.uniform(range[0], range[1]))
+        'tilesize': (lambda rng, range: rng.randint(range[0], range[1])),
+        'step': (lambda rng, range: round(rng.uniform(range[0], range[1]), 1)),
+        'skip_chance': (lambda rng, range: round(rng.uniform(range[0], range[1]), 2)),
+        'repeat_chance': (lambda rng, range: round(rng.uniform(range[0], range[1]), 2)),
+        'noise_based': (lambda rng, sequence: rng.choice(sequence)),
+        'noisescale': (lambda rng, range: rng.randint(range[0], range[1]))
     }
 }
 
