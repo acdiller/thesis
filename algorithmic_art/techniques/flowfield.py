@@ -57,7 +57,7 @@ class FlowField(BaseTechnique):
         p = self.rng.choice([key for key in ff['params']])
         # mutate parameter
         new_val = ff['randomizers'][p](self.rng, ff['params'][p])
-        #print("parameter '" + p + "' mutated from " + str(getattr(self, p)) + " to " + str(new_val))
+        print("parameter '" + p + "' mutated from " + str(getattr(self, p)) + " to " + str(new_val))
         setattr(self, p, new_val)
 
 

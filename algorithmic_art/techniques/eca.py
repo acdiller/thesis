@@ -33,6 +33,7 @@ class ElementaryCA(BaseTechnique):
         p = self.rng.choice([key for key in eca['params']])
         # mutate parameter
         new_val = eca['randomizers'][p](self.rng, eca['params'][p])
+        print("parameter '" + p + "' mutated from " + str(getattr(self, p)) + " to " + str(new_val))
         setattr(self, p, new_val)
 
 
@@ -72,7 +73,7 @@ class ElementaryCA(BaseTechnique):
             for i in range(num_cells):
                 cells[i] = 0 if self.rng.random() < 0.5 else 1
         
-        num_gens = (self.height - 2) // self.cellsize
+        num_gens = (self.height - self.pad * 2) // self.cellsize
 
         self.history.append(cells)
         gen = 1

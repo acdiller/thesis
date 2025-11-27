@@ -3,7 +3,7 @@ import math
 import shapely
 
 from algorithmic_art.techniques.base_technique import BaseTechnique
-#from algorithmic_art.techniques.params import phyllo
+from algorithmic_art.techniques.params import phyllo
 from algorithmic_art.tools.curves import catrom_curve
 from algorithmic_art.tools.shapes import circular_sinewave
 
@@ -14,24 +14,42 @@ class Phyllotaxis(BaseTechnique):
 
         if start_n:
             self.start_n = start_n
+        else:
+            self.start_n = phyllo['randomizers']['start_n'](self.rng, phyllo['params']['start_n'])
         
         if c:
             self.c = c
+        else:
+            self.c = phyllo['randomizers']['c'](self.rng, phyllo['params']['c'])
         
         if mod:
             self.mod = mod
+        else:
+            self.mod = phyllo['randomizers']['mod'](self.rng, phyllo['params']['mod'])
         
         if radius:
             self.radius = radius
+        else:
+            self.radius = phyllo['randomizers']['radius'](self.rng, phyllo['params']['radius'])
         
         if freq:
             self.freq = freq
+        else:
+            self.freq = phyllo['randomizers']['freq'](self.rng, phyllo['params']['freq'])
         
         if amp:
             self.amp = amp
+        else:
+            self.amp = phyllo['randomizers']['amp'](self.rng, phyllo['params']['amp'])
     
+
     def mutate(self): 
-        pass
+        # randomly select mutatable parameter
+        p = self.rng.choice([key for key in phyllo['params']])
+        # mutate parameter
+        new_val = phyllo['randomizers'][p](self.rng, phyllo['params'][p])
+        print("parameter '" + p + "' mutated from " + str(getattr(self, p)) + " to " + str(new_val))
+        setattr(self, p, new_val)
     
 
     def draw(self):

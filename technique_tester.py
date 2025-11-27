@@ -15,7 +15,8 @@ from algorithmic_art.techniques import (
 from algorithmic_art.tools.shapes import hexagon, rect
 
 DIM = (1054, 816)   # US letter paper at 96 DPI
-test_palette = ["#61E8E1", "#F25757", "#FFC145", "#1F5673"]
+#test_palette = ["#61E8E1", "#F25757", "#FFC145", "#1F5673"]
+test_palette = ["#FC0FC0", "#FF7F00", "#FFFF00", "#32CD32", "#0FC0FC"]
 
 def createSVG(ind=None, elems=None, filename="test.svg"):
     xml_preamble = '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -30,7 +31,7 @@ def createSVG(ind=None, elems=None, filename="test.svg"):
     else:
         geoms = elems
 
-    geoms.append(rect(0, 0, w, h))
+    #geoms.append(rect(0, 0, w, h))
         
     with open(filename, "w") as f:
         f.write(xml_preamble)
@@ -44,7 +45,7 @@ def createSVG(ind=None, elems=None, filename="test.svg"):
 
 def main():
     rng = random.Random()
-    rng.seed(12)
+    rng.seed(5)
 
     sd = (0, 0, DIM[0], DIM[1])
     #sd = (DIM[0]/2, DIM[1]/2, DIM[0], DIM[1])
@@ -54,10 +55,11 @@ def main():
     #createSVG(ff)
     #print(ff)
 
-    #e = ElementaryCA(rng, sd)
+    e = ElementaryCA(rng, sd, init_state="random", rule=30, cellsize=10)
     #e.mutate()
-    #e.draw()
-    #createSVG(e, filename="eca-test.svg")
+    e.draw()
+    print(e)
+    createSVG(e, filename="eca-test.svg")
     
     #cp = CirclePacking(rng, sd, shape_type="sinewave")
     #cp.mutate()
@@ -83,10 +85,9 @@ def main():
     #createSVG(rad, filename="radial-lines-test.svg")
     #print(rad)
 
-    lt = LineTiles(rng, sd, step=5.0, noise_based=False)
-    lt.draw()
-    print(lt.tilesize)
-    createSVG(lt, filename="linetiles-test.svg")
+    #lt = LineTiles(rng, sd, step=5.0, noise_based=False)
+    #lt.draw()
+    #createSVG(lt, filename="linetiles-test.svg")
     
 
 

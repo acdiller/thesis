@@ -41,7 +41,7 @@ class CirclePacking(BaseTechnique):
         p = self.rng.choice([key for key in cp['params']])
         # mutate parameter
         new_val = cp['randomizers'][p](self.rng, cp['params'][p])
-        #print("parameter '" + p + "' mutated from " + str(getattr(self, p)) + " to " + str(new_val))
+        print("parameter '" + p + "' mutated from " + str(getattr(self, p)) + " to " + str(new_val))
         setattr(self, p, new_val)
     
     

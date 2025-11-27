@@ -39,6 +39,7 @@ class RadialLines(BaseTechnique):
         p = self.rng.choice([key for key in radlines['params']])
         # mutate parameter
         new_val = radlines['randomizers'][p](self.rng, radlines['params'][p])
+        print("parameter '" + p + "' mutated from " + str(getattr(self, p)) + " to " + str(new_val))
         setattr(self, p, new_val)
 
 

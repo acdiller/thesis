@@ -69,6 +69,25 @@ ltiles = {
     }
 }
 
+phyllo = {
+    'params': {
+        'start_n': (50, 100),
+        'c': (8, 12),
+        'mod': (5, 10),
+        'radius': (30, 60),
+        'freq': (5, 15),
+        'amp': (2, 8)
+    },
+    'randomizers': {
+        'start_n': (lambda rng, range: rng.randint(range[0], range[1])),
+        'c': (lambda rng, range: rng.randint(range[0], range[1])),
+        'mod': (lambda rng, range: rng.randint(range[0], range[1])),
+        'radius': (lambda rng, range: rng.randint(range[0], range[1])),
+        'freq': (lambda rng, range: rng.randint(range[0], range[1])),
+        'amp': (lambda rng, range: rng.randint(range[0], range[1]))
+    }
+}
+
 radlines = {
     'params': {
         'n_lines': (50, 100),

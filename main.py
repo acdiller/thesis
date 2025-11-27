@@ -1,16 +1,23 @@
 import argparse
-import itertools
 import os
 import random
-import shapely
-
 from copy import deepcopy
-from drawsvg import Drawing
+
+import shapely
 
 from archive import Archive
 from individual import Individual
-from techniques import CirclePacking, ElementaryCA, FlowField
-from time import perf_counter
+from pens import pilotV5
+
+from algorithmic_art.techniques import (
+    CirclePacking,
+    ElementaryCA,
+    FlowField,
+    Phyllotaxis,
+    RadialLines
+)
+
+techniques = [CirclePacking, ElementaryCA, FlowField, Phyllotaxis, RadialLines]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--run_num", default=0, type=int, help="Run number.")
@@ -27,6 +34,31 @@ DIM = (1054, 816)   # US letter paper at 96 DPI
 test_palette = ["#61E8E1", "#F25757", "#FFC145", "#1F5673"]
 
 
+def createSVG(ind, filename="test.svg"):
+    xml_preamble = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    w = ind.dim[0]
+    h = ind.dim[1]
+    svg_root = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"\n \twidth="' + str(w) + '" height="' + str(h) + '" viewBox="0 0 ' + str(w) + ' ' + str(h) + '">\n'
+    svg_close = '</svg>'
+
+    all_geoms = []
+    for t in ind.techniques:
+        all_geoms += t.geoms
+
+    # create random palette from available pen colours
+    n_colours = ind.rng.randint(2, 5)
+    palette = ind.rng.sample(list(ind.pentype['colours'].keys()), n_colours)
+    
+    with open(filename, "w") as f:
+        f.write(xml_preamble)
+        f.write(svg_root)
+        for g in all_geoms:
+            # create randomized palette from available pen colours
+            colour = ind.pentype['colours'][ind.rng.choice(palette)]
+            f.write(g.svg(scale_factor=0.5, stroke_color=colour, opacity=1.0) + '\n')
+        f.write(svg_close)
+
+
 def evaluate(ind):
     n_elements = 0
     for t in ind.techniques:
@@ -34,11 +66,14 @@ def evaluate(ind):
         n_elements += len(t.geoms)
 
     ind.features = (len(ind.techniques), n_elements)
+    ind.fitness = getOverlaps(ind)
+
     ind.isEvaluated = True
 
 
 # fitness function - calculates every point of intersection between plot geometries
 def getOverlaps(ind):
+    print(f"Evaluating {ind.id}")
     all_geoms = []
     for t in ind.techniques:
         all_geoms += t.geoms
@@ -60,139 +95,102 @@ def getOverlaps(ind):
             else:
                 intersections.add(g)   # add single Point/LineString 
     
+    penwidth = ind.pentype['penwidth']
+
     mostOverlaps = 0
     for g in intersections:
         # get indices for anything that intersects with the buffered intersection - aka how many things touch at that spot
-        indices = tree.query(g.buffer(ind.penwidth/2), predicate='intersects')
+        indices = tree.query(g.buffer(penwidth/2), predicate='intersects')
         mostOverlaps = max(mostOverlaps, len(indices))
+    print(f"{ind.id} with {mostOverlaps} overlaps")
+    
     return mostOverlaps
 
 
-def mutation(ind):
-    pass
+def mutation(ind, it):
+    mutator = deepcopy(ind)
+    mutator.id += f"_m{it}"
+
+    # reset geometries, fitness, features, etc.
+    for t in mutator.techniques:
+        t.geoms.clear()
+    mutator.features = None
+    mutator.fitness = 0.0
+    mutator.isEvaluated = False
+
+    # choose random technique and mutate one of its parameters
+    t = mutator.rng.choice(mutator.techniques)
+    t.mutate()
+
+    return mutator
 
 
-def generateIndividual(rng, all_techniques):
-    d = Drawing(DIM[0], DIM[1])
-    
-    #num_tech = rng.randint(2, 6)
-    num_tech = 2
-    
-    ind_techniques = []
-
-    for _ in range(num_tech):
-        t = rng.choice(all_techniques)
-        tech = t(rng, (0, 0, DIM[0], DIM[1]), test_palette)
-        ind_techniques.append(tech)
-    
-    ind = Individual(1, rng, DIM, d, ind_techniques)
-    
+# generate random individual
+def generate_individual(id, rng, pentype, n_techniques):
+    ind = Individual(id, rng, DIM, pentype)
+    for _ in range(n_techniques):
+            t = rng.choice(techniques)
+            ind.techniques.append(t(rng, (0, 0, DIM[0], DIM[1])))
+    print(f"Created {ind.id} with techniques: {', '.join(str(t) for t in ind.techniques)}")
     return ind
 
 
-def partition_canvas(dim, num_techniques):
-    w = dim[0]
-    h = dim[1]
-    
-    if num_techniques == 2:
-        return [(0, 0, w/2, h), (w/2, 0, w, h)]
-    elif num_techniques == 3:
-        return [(0, 0, w/3, h),
-                (w/3, 0, w-w/3, h),
-                (w-w/3, 0, w, h)]
-    elif num_techniques == 4:
-        return [(0, 0, w/2, h/2),
-                (w/2, 0, w, h/2),
-                (0, h/2, w/2, h),
-                (w/2, h/2, w, h)]
-                 
-
-# TODO: determine palettes
-# create random initial population and add to archive
-def initArchive(rng, pop_size, archive, all_techniques):
+# randomly generate initial population, evaluate, and add to archive
+def initArchive(rng, pop_size, archive):
     for i in range(pop_size):
         id = f"0_{i}"
-        d = Drawing(DIM[0], DIM[1])
-
-        num_tech = rng.randint(2, 6)
-        ind_techniques = []
-
-
-
-def createSVG(ind):
-    xml_preamble = '<?xml version="1.0" encoding="UTF-8"?>\n'
-    w = ind.dim[0]
-    h = ind.dim[1]
-    svg_root = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"\n \twidth="' + str(w) + '" height="' + str(h) + '" viewBox="0 0 ' + str(w) + ' ' + str(h) + '">\n'
-    svg_close = '</svg>'
-
-    all_geoms = []
-    for t in ind.techniques:
-        all_geoms += t.geoms
-    
-    # TODO: devise specific filenaming pattern
-    filename = "test.svg"
-    
-    with open(filename, "w") as f:
-        f.write(xml_preamble)
-        f.write(svg_root)
-        for g in all_geoms:
-            # TODO: color assignment
-            colour = random.choice(test_palette)
-            f.write(g.svg(scale_factor=0.5, stroke_color=colour, opacity=1.0) + '\n')
-        f.write(svg_close)
-
-
+        n = rng.randrange(archive.fd_bins['n_techniques'][0], archive.fd_bins['n_techniques'][-1])
+        ind = generate_individual(id, rng, pilotV5, n)
+        evaluate(ind)
+        archive.add_to_archive(ind)
+        
+        
+        
 def main():
     # cmd-line parameters
-    num_iterations = args.iterations
+    n_iterations = args.iterations
     pop_size = args.population_size
     #xover_rate = args.crossover_rate
     #mut_rate = args.mutation_rate
     
     # create output directory if it doesn't exist
-    #if not os.path.exists(args.output_path): os.mkdir(args.output_path)
+    if not os.path.exists(args.output_path): os.mkdir(args.output_path)
     
-    shared_rng = random.Random(args.run_num)
+    rng = random.Random(args.run_num)
 
     # techniques
-    techniques = [CirclePacking, ElementaryCA]
+    techniques = [CirclePacking, ElementaryCA, FlowField, Phyllotaxis, RadialLines]
 
     # configure bins - last element specifies upper bound
     fd_bins = {
-        'num_techniques': (2, 3, 4, 5, 6, 7),
-        'num_elements': (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100)
+        'n_techniques': (2, 3, 4, 5, 6),
+        'n_elements': (0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000)
     }
 
     # initialize archive
-    archive = Archive(fd_bins)
+    map = Archive(fd_bins)
+    initArchive(rng, pop_size, map)
 
-    #init_archive(shared_rng, pop_size, archive, techniques)
-    test_ind = generateIndividual(shared_rng, techniques)
+    for it in range(1, n_iterations):
+        # random selection
+        c = rng.choice(list(map.cells))
+        x = c[0][2]
 
-    behaviour = evaluate(test_ind)
-    print(behaviour)
+        # mutation
+        offspring = mutation(x, it)
 
-    test_ind.drawing.save_svg("test-individual.svg")
+        # evaluate
+        evaluate(offspring)
+
+        map.add_to_archive(offspring)
+
+    print("Final output:")
+
+    for c in map.cells:
+        ind = c[0][2]
+        print(ind.id, ind.fitness, ind.features[0], ind.features[1])
+        createSVG(ind, filename=os.path.join(args.output_path, f"img-{ind.id}.svg"))
 
 
 if __name__ == "__main__":
-    #main()
-    rng = random.Random(22)
-    #techniques = [CirclePacking, ElementaryCA]
-
-    #test_ind = generateIndividual(rng, techniques)
-    test_ind = Individual(1, rng, DIM, 0.94, [FlowField(rng, (0, 0, DIM[0], DIM[1]), test_palette, style='flowy')])
-    evaluate(test_ind)
-
-    #test_ind.drawing.save_svg("test-individual.svg")
-    print("number of techniques: " + str(test_ind.features[0]))
-    print("number of elements: " + str(test_ind.features[1]))
-
-    createSVG(test_ind)
-    start = perf_counter()
-    mostOverlaps = getOverlaps(test_ind)
-    end = perf_counter()
-    
-    print("highest number of overlaps: " + str(mostOverlaps))
-    print("time to find: " + str(end-start) + "s")
+    main()

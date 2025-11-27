@@ -5,6 +5,7 @@ class Archive:
         self.fd_bins = fd_bins
 
         self.archive = {}
+        self.cells = self.archive.values()
     
 
     def add_to_archive(self, ind):
@@ -17,15 +18,16 @@ class Archive:
         """
         coordinates = []
         # get index for bin corresponding to individual's features, for each set of bins
-        for bins in self.fd_bins.values():
+        for b, bins in enumerate(self.fd_bins.values()):
             for i in range(len(bins)-1):
-                if bins[i] <= ind.behaviour[i] and ind.behaviour[i] < bins[i+1]:
+                if bins[i] <= ind.features[b] and ind.features[b] < bins[i+1]:
                     coordinates.append(i)
                     break
-        tuple(coordinates)  # make hashable for archive key
+        coordinates = tuple(coordinates)  # make hashable for archive key
 
-        self.archive.setdefault(coordinates, default=[])
-        heapq.heappush(self.archive[coordinates], (ind.fitness, ind))
+        self.archive.setdefault(coordinates, [])
+        heapq.heappush(self.archive[coordinates], (ind.fitness, ind.id, ind))
+        print(f"{ind.id} with fitness {ind.fitness} placed at {coordinates}")
 
 
         # place individual in cell if cell is empty, or it outperforms current occupant
