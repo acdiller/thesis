@@ -7,7 +7,7 @@
 *.pyc
 __pycache__/
 .venv/
-.prof
+*.prof
 
 # vs code
 *.code-workspace
