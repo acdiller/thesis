@@ -3,6 +3,8 @@ Standalone file to ensure that techniques/tools work as expected.
 """
 import random
 
+import shapely
+
 from algorithmic_art.techniques import (
     CirclePacking,
     ElementaryCA,
@@ -12,7 +14,7 @@ from algorithmic_art.techniques import (
     RadialLines
 )
 
-from algorithmic_art.tools.shapes import hexagon, rect
+from algorithmic_art.tools.shapes import hexagon, rect, circular_sinewave
 
 DIM = (1054, 816)   # US letter paper at 96 DPI
 #test_palette = ["#61E8E1", "#F25757", "#FFC145", "#1F5673"]
@@ -31,6 +33,7 @@ def createSVG(ind=None, elems=None, filename="test.svg"):
     else:
         geoms = elems
 
+    geoms = shapely.set_precision(geoms, 0.001)
     #geoms.append(rect(0, 0, w, h))
         
     with open(filename, "w") as f:
@@ -45,7 +48,7 @@ def createSVG(ind=None, elems=None, filename="test.svg"):
 
 def main():
     rng = random.Random()
-    rng.seed(5)
+    rng.seed(22)
 
     sd = (0, 0, DIM[0], DIM[1])
     #sd = (DIM[0]/2, DIM[1]/2, DIM[0], DIM[1])
@@ -55,23 +58,25 @@ def main():
     #createSVG(ff)
     #print(ff)
 
-    e = ElementaryCA(rng, sd, init_state="random", rule=30, cellsize=10)
+    #e = ElementaryCA(rng, sd, init_state="random", rule=30, cellsize=10)
     #e.mutate()
-    e.draw()
-    print(e)
-    createSVG(e, filename="eca-test.svg")
+    #e.draw()
+    #createSVG(e, filename="eca-test.svg")
     
-    #cp = CirclePacking(rng, sd, shape_type="sinewave")
+    cp = CirclePacking(rng, sd, shape_type="sinewave")
     #cp.mutate()
-    #cp.draw()
-    #createSVG(cp, filename="cp-sinewave-test.svg")
+    cp.draw()
+    #cp.geoms = shapely.simplify(cp.geoms, tolerance=0.2, preserve_topology=False)
+    createSVG(cp, filename="cp-sinewave-test.svg")
 
-    n = 200
-    c = 10
-    mod = 5
-    radius = 70
-    freq = 12
-    amp = 4
+    r = 25
+    freq = 10
+    amp = 2
+
+    #csw = circular_sinewave(50, 50, r, freq, amp)
+
+    #print("csw", shapely.get_num_points(csw))
+    #createSVG(elems=[csw], filename="csw-test.svg")
 
     #phy = Phyllotaxis(rng, sd, n, c, mod, radius, freq, amp)
     #phy.draw()

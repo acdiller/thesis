@@ -80,7 +80,7 @@ def catrom_point(p0, p1, p2, p3, t, tension=0.0):
     return Point(x, y)
 
 
-def catrom_curve(control_points, res=0.1):
+def catrom_curve(control_points, res=0.5):
     """
     Construct curve from a sequence of points using Catmull-Rom spline segments.
 

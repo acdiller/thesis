@@ -68,7 +68,7 @@ def hexagon(cx, cy, r):
 
 def circular_sinewave(cx, cy, r, freq, amp):
     a = 0
-    step = 0.005
+    step = 0.075
 
     dx = cx + (r + math.sin(a * freq) * amp) * math.cos(a)
     dy = cy + (r + math.sin(a * freq) * amp) * math.sin(a)
@@ -83,6 +83,7 @@ def circular_sinewave(cx, cy, r, freq, amp):
 
         a += step
     base_points.append(shapely.Point(dx, dy))  # last control point
-    curve_points = catrom_curve(base_points, res=0.5)
+    curve_points = catrom_curve(base_points, res=0.75)
     
-    return shapely.LineString(curve_points)
+    #return shapely.LineString(curve_points)
+    return shapely.LinearRing(curve_points)
