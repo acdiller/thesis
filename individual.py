@@ -10,7 +10,4 @@ class Individual:
 
         self.features = None
 
-        self.isEvaluated = False
         self.fitness = 0.0
-        
-        #self.plot_info = None

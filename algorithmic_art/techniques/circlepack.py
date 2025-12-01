@@ -1,4 +1,5 @@
 import math
+from decimal import Decimal
 
 from algorithmic_art.techniques.base_technique import BaseTechnique
 from algorithmic_art.techniques.params import cp
@@ -35,7 +36,12 @@ class CirclePacking(BaseTechnique):
 
         self.circles = []
     
-    
+
+    def reset(self):
+        self.geoms.clear()
+        self.circles.clear()
+
+
     def mutate(self):
         # randomly select mutatable parameter
         p = self.rng.choice([key for key in cp['params']])
@@ -49,16 +55,20 @@ class CirclePacking(BaseTechnique):
         """
         Attempt to place new circle in a random, unoccupied location.
         """
-        buffer = self.start_r + self.pad   # buffer distance from edge of canvas
         failures = 0
         spawned = False
         while (not spawned) and failures < self.max_failures:
+            amp = 0
+            if self.shape_type == "sinewave":
+                amp = 2
+            buffer = self.start_r + self.pad   # buffer distance from edge of canvas
+
             x = self.rng.randrange(buffer, int(self.width - buffer))
             y = self.rng.randrange(buffer, int(self.height - buffer))
             x += self.origin['x']
             y += self.origin['y']
 
-            if self.collision({'x': x, 'y': y, 'r': self.start_r}):
+            if self.collision({'x': x, 'y': y, 'r': self.start_r, 'amp': amp}):
                 failures += 1
             else:
                 # create new circle
@@ -66,6 +76,7 @@ class CirclePacking(BaseTechnique):
                     'x': x,
                     'y': y,
                     'r': self.start_r,
+                    'amp': amp,
                     'growing': True
                 }
                 self.circles.append(c)
@@ -117,22 +128,18 @@ class CirclePacking(BaseTechnique):
         Args:
             c (dict of str: int): the circle to check for collisions with
         """
-        buffer = 0
-        if self.shape_type == 'sinewave':
-            buffer = c['amp']
-        
         circle_collision = False
         
         for c2 in self.circles:
             if c != c2:    
                 distance = math.dist((c['x'], c['y']), (c2['x'], c2['y']))
-                if distance < c['r'] + c2['r'] + (self.pad * 2) + buffer:
+                if distance < c['r'] + c2['r'] + (self.pad * 2) + c['amp'] + c2['amp']:
                     circle_collision = True
         
-        edge_collision = ((c['x'] - c['r'] - self.pad - buffer <= self.origin['x']) or
-                          (c['x'] + c['r'] + self.pad + buffer >= self.origin['x'] + self.width) or
-                          (c['y'] - c['r'] - self.pad - buffer <= self.origin['y']) or
-                          (c['y'] + c['r'] + self.pad + buffer >= self.origin['y'] + self.height))
+        edge_collision = ((c['x'] - c['r'] - self.pad - c['amp'] <= self.origin['x']) or
+                          (c['x'] + c['r'] + self.pad + c['amp'] >= self.origin['x'] + self.width) or
+                          (c['y'] - c['r'] - self.pad - c['amp'] <= self.origin['y']) or
+                          (c['y'] + c['r'] + self.pad + c['amp'] >= self.origin['y'] + self.height))
         return circle_collision or edge_collision
     
 
@@ -140,7 +147,7 @@ class CirclePacking(BaseTechnique):
         terminated = False
         while not terminated:
             for _ in range(self.n_spawn):
-                new_placed = self.spawn_circle() if self.shape_type == 'circle' else self.spawn_sinewave()
+                new_placed = self.spawn_circle()
                 terminated = not new_placed
                 if terminated:
                     break

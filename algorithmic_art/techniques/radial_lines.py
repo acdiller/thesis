@@ -33,6 +33,10 @@ class RadialLines(BaseTechnique):
         else:
             self.shiftstep = radlines['randomizers']['shiftstep'](self.rng, radlines['params']['shiftstep'])
 
+
+    def reset(self):
+        self.geoms.clear()
+
     
     def mutate(self):
         # randomly select mutatable parameter

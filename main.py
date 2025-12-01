@@ -68,8 +68,6 @@ def evaluate(ind):
     ind.features = (len(ind.techniques), n_elements)
     ind.fitness = getOverlaps(ind)
 
-    ind.isEvaluated = True
-
 
 # fitness function - calculates every point of intersection between plot geometries
 def getOverlaps(ind):
@@ -93,7 +91,7 @@ def getOverlaps(ind):
             if isinstance(g, shapely.MultiPoint) or isinstance(g, shapely.MultiLineString):
                 intersections.update(g.geoms)   # split MultiPoint or MultiLineString into individual parts
             else:
-                intersections.add(g)   # add single Point/LineString 
+                intersections.add(g)   # add single Point/LineString/LinearRing 
     
     penwidth = ind.pentype['penwidth']
 
@@ -113,10 +111,9 @@ def mutation(ind, it):
 
     # reset geometries, fitness, features, etc.
     for t in mutator.techniques:
-        t.geoms.clear()
+        t.reset()
     mutator.features = None
     mutator.fitness = 0.0
-    mutator.isEvaluated = False
 
     # choose random technique and mutate one of its parameters
     t = mutator.rng.choice(mutator.techniques)

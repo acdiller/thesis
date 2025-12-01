@@ -44,6 +44,10 @@ class LineTiles(BaseTechnique):
             self.noisescale = ltiles['randomizers']['noisescale'](self.rng, ltiles['params']['noisescale'])
     
 
+    def reset(self):
+        self.geoms.clear()
+
+
     def mutate(self):
         # randomly select mutatable parameter
         p = self.rng.choice([key for key in ltiles['params'] if getattr(self, key) is not None])

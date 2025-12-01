@@ -52,6 +52,11 @@ class FlowField(BaseTechnique):
         self.particles = []
     
 
+    def reset(self):
+        self.geoms.clear()
+        self.particles.clear()
+
+
     def mutate(self):
         # randomly select mutatable parameter
         p = self.rng.choice([key for key in ff['params']])

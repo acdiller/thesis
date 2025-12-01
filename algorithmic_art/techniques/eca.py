@@ -28,6 +28,11 @@ class ElementaryCA(BaseTechnique):
         self.history = []
 
 
+    def reset(self):
+        self.geoms.clear()
+        self.history.clear()
+
+
     def mutate(self):
         # randomly select mutatable parameter
         p = self.rng.choice([key for key in eca['params']])
@@ -62,7 +67,7 @@ class ElementaryCA(BaseTechnique):
     def draw(self):
         cells = []
 
-        num_cells = int((self.width - 2) // self.cellsize)
+        num_cells = int((self.width - self.pad * 2) // self.cellsize)
         cells = [0 for _ in range(num_cells)]
 
         if self.init_state == 'single':

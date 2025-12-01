@@ -10,10 +10,17 @@ class BaseTechnique(ABC):
 
         self.geoms = []
     
+    
     @abstractmethod
-    def draw(self):
+    def reset(self):
         pass
+
 
     @abstractmethod
     def mutate(self):
+        pass
+
+
+    @abstractmethod
+    def draw(self):
         pass
