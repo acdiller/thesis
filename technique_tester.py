@@ -40,7 +40,6 @@ def createSVG(ind=None, elems=None, filename="test.svg"):
         f.write(xml_preamble)
         f.write(svg_root)
         for g in geoms:
-            # TODO: color assignment
             colour = random.choice(test_palette)
             f.write(g.svg(scale_factor=0.5, stroke_color=colour, opacity=1.0) + '\n')
         f.write(svg_close)
@@ -53,21 +52,21 @@ def main():
     sd = (0, 0, DIM[0], DIM[1])
     #sd = (DIM[0]/2, DIM[1]/2, DIM[0], DIM[1])
 
-    #ff = FlowField(rng, sd, style='flowy')
-    #ff.draw()
-    #createSVG(ff)
-    #print(ff)
+    ff = FlowField(rng, sd, style='flowy')
+    ff.draw()
+    #ff.geoms = shapely.simplify(ff.geoms, tolerance=0.1)
+    createSVG(ff, filename="ff-simplified-test.svg")
 
     #e = ElementaryCA(rng, sd, init_state="random", rule=30, cellsize=10)
     #e.mutate()
     #e.draw()
     #createSVG(e, filename="eca-test.svg")
     
-    cp = CirclePacking(rng, sd, shape_type="sinewave")
+    #cp = CirclePacking(rng, sd, shape_type="sinewave")
     #cp.mutate()
-    cp.draw()
+    #cp.draw()
     #cp.geoms = shapely.simplify(cp.geoms, tolerance=0.2, preserve_topology=False)
-    createSVG(cp, filename="cp-sinewave-test.svg")
+    #createSVG(cp, filename="cp-sinewave-test.svg")
 
     r = 25
     freq = 10

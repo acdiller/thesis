@@ -67,6 +67,9 @@ class FlowField(BaseTechnique):
 
 
     def edge_particles(self):
+        """
+        Place particles randomly along the edges of the drawing area.
+        """
         for x in range(0, self.width, self.resolution):
             y = 0 if self.rng.random() < 0.5 else self.height
             #p = {'x': x, 'y': y, 'colour': self.rng.choice(self.palette)}
@@ -81,6 +84,9 @@ class FlowField(BaseTechnique):
 
 
     def random_particles(self):
+        """
+        Place particles in random locations within the drawing area.
+        """
         n = (self.width//self.resolution) + (self.height//self.resolution)
         for _ in range(n):
             x = self.rng.randrange(0, self.width)
@@ -89,6 +95,9 @@ class FlowField(BaseTechnique):
 
 
     def in_bounds(self, p):
+        """
+        Check if a particle is within the drawing area.
+        """
         return (p.x >= 0) and (p.x < self.width) and (p.y >= 0) and (p.y < self.height)
 
 
@@ -120,6 +129,9 @@ class FlowField(BaseTechnique):
 
             if len(points) > 20:
                 self.geoms.append(shapely.LineString(points))
+            
+        # simplify geometries to reduce number of line segments
+        self.geoms = shapely.simplify(self.geoms, tolerance=0.1).tolist()
     
 
     def __str__(self):
