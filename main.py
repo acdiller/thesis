@@ -100,7 +100,7 @@ def getOverlaps(ind):
         # get indices for anything that intersects with the buffered intersection - aka how many things touch at that spot
         indices = tree.query(g.buffer(penwidth/2), predicate='intersects')
         mostOverlaps = max(mostOverlaps, len(indices))
-    print(f"{ind.id} with {mostOverlaps} overlaps")
+    #print(f"{ind.id} with {mostOverlaps} overlaps")
     
     return mostOverlaps
 
@@ -161,11 +161,12 @@ def main():
     # configure bins - last element specifies upper bound
     fd_bins = {
         'n_techniques': (2, 3, 4, 5, 6),
-        'n_elements': (0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000)
+        'n_elements': (0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500)
     }
 
     # initialize archive
     map = Archive(fd_bins)
+    print(f"Generating initial population of {pop_size} individuals")
     initArchive(rng, pop_size, map)
 
     for it in range(1, n_iterations):
@@ -181,7 +182,7 @@ def main():
 
         map.add_to_archive(offspring)
 
-    print("Final output:")
+    print("Elites:")
 
     for c in map.cells:
         ind = c[0][2]
