@@ -23,7 +23,7 @@ from algorithmic_art.tools.shapes import (
 
 DIM = (1054, 816)   # US letter paper at 96 DPI
 #test_palette = ["#61E8E1", "#F25757", "#FFC145", "#1F5673"]
-test_palette = ["#FC0FC0", "#FF7F00", "#FFFF00", "#32CD32", "#0FC0FC"]
+test_palette = ["#054A91", "#62BFED", "#C81D25", "#A0C940"]
 
 def createSVG(ind=None, elems=None, filename="test.svg"):
     xml_preamble = '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -51,7 +51,8 @@ def createSVG(ind=None, elems=None, filename="test.svg"):
 
 
 def circlepack(rng, sd, output_svg=True):
-    cp = CirclePacking(rng, sd, shape_type="sinewave")
+    
+    cp = CirclePacking(rng, sd, shape_type='circle', n_spawn=1, start_r=15, max_failures=50, pad=5)
     #cp.mutate()
     cp.draw()
     #cp.geoms = shapely.simplify(cp.geoms, tolerance=0.2, preserve_topology=False)
@@ -74,6 +75,13 @@ def elemca(rng, sd, output_svg=True):
 
 
 def flowfield(rng, sd, output_svg=True):
+    res = 4
+    ns = 800
+    octs = 8
+    pers = 0.25
+    lac = 2.0
+    
+    #ff = FlowField(rng, sd, style='flowy', resolution=res, noisescale=ns, octaves=octs, persistence=pers, lacunarity=lac)
     ff = FlowField(rng, sd, style='flowy')
     ff.draw()
     #ff.geoms = shapely.simplify(ff.geoms, tolerance=0.1)
@@ -121,9 +129,22 @@ def radlines(rng, sd, output_svg=True):
         return rad
 
 
+def cropped(rng, sd):
+    ff = flowfield(rng, sd, output_svg=False)
+    cp = circlepack(rng, sd, output_svg=False)
+
+    croples = [shapely.Polygon(c) for c in cp.geoms]
+    croples = shapely.MultiPolygon(croples)
+    cropped_ff = shapely.intersection(ff.geoms, croples).tolist()
+    
+    #cropped_ff += shapely.boundary(cp.geoms).tolist()
+
+    createSVG(elems=cropped_ff, filename="cropped-ff-test.svg")
+
+
 def main():
     rng = random.Random()
-    rng.seed(22)
+    rng.seed(9)
 
     sd = (0, 0, DIM[0], DIM[1])
     #sd = (DIM[0]/2, DIM[1]/2, DIM[0], DIM[1])
