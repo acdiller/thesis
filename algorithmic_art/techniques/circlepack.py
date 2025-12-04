@@ -1,5 +1,4 @@
 import math
-from decimal import Decimal
 
 from algorithmic_art.techniques.base_technique import BaseTechnique
 from algorithmic_art.techniques.params import cp
