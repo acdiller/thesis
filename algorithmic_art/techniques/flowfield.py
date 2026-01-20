@@ -70,13 +70,13 @@ class FlowField(BaseTechnique):
         """
         Place particles randomly along the edges of the drawing area.
         """
-        for x in range(0, self.width, self.resolution):
+        for x in range(self.origin['x'], self.width, self.resolution):
             y = 0 if self.rng.random() < 0.5 else self.height
             #p = {'x': x, 'y': y, 'colour': self.rng.choice(self.palette)}
             #self.particles.append(p)
             self.particles.append(Particle(x, y))
         
-        for y in range(0, self.height, self.resolution):
+        for y in range(self.origin['y'], self.height, self.resolution):
             x = 0 if self.rng.random() < 0.5 else self.width
             #p = {'x': x, 'y': y, 'colour': self.rng.choice(self.palette)}
             #self.particles.append(p)
@@ -89,8 +89,8 @@ class FlowField(BaseTechnique):
         """
         n = (self.width//self.resolution) + (self.height//self.resolution)
         for _ in range(n):
-            x = self.rng.randrange(0, self.width)
-            y = self.rng.randrange(0, self.height)
+            x = self.rng.randrange(self.origin['x'], self.origin['x'] + self.width)
+            y = self.rng.randrange(self.origin['y'], self.origin['y'] + self.height)
             self.particles.append(Particle(x, y, 200))
 
 
@@ -98,7 +98,7 @@ class FlowField(BaseTechnique):
         """
         Check if a particle is within the drawing area.
         """
-        return (p.x >= 0) and (p.x < self.width) and (p.y >= 0) and (p.y < self.height)
+        return (p.x >= self.origin['x']) and (p.x < self.origin['x'] + self.width) and (p.y >= self.origin['y']) and (p.y < self.origin['y'] + self.height)
 
 
     def draw(self):
@@ -122,7 +122,7 @@ class FlowField(BaseTechnique):
                 p.y += math.sin(angle)
 
                 #points.append((p.x, p.y))
-                points.append((constrain(p.x, 0, self.width), constrain(p.y, 0, self.height)))
+                points.append((constrain(p.x, self.origin['x'], self.origin['x'] + self.width), constrain(p.y, self.origin['y'], self.origin['y'] + self.height)))
 
                 if p.life is not None:
                     p.life -= 1

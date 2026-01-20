@@ -3,6 +3,7 @@ import shapely
 
 from algorithmic_art.techniques.base_technique import BaseTechnique
 from algorithmic_art.techniques.params import radlines
+from algorithmic_art.tools.art_utils import constrain
 
 class RadialLines(BaseTechnique):
     def __init__(self, rng, subdim, n_lines=None, line_length=None, base_r=None, shift=None, shiftstep=None):
@@ -48,17 +49,19 @@ class RadialLines(BaseTechnique):
 
 
     def draw(self):
-        originx = self.width / 2
-        originy = self.height / 2
+        center_x = self.origin['x'] + (self.width / 2)
+        center_y = self.origin['y'] + (self.height / 2)
 
         for i in range(self.n_lines):
             r = self.base_r + (i % self.shiftstep * self.shift)
             a = i * (math.tau / self.n_lines)
 
-            x1 = r * math.cos(a) + originx
-            y1 = r * math.sin(a) + originy
+            x1 = r * math.cos(a) + center_x
+            y1 = r * math.sin(a) + center_y
             x2 = x1 + self.line_length * math.cos(a)
+            x2 = constrain(x2, self.origin['x'], self.origin['x'] + self.width)
             y2 = y1 + self.line_length * math.sin(a)
+            y2 = constrain(y2, self.origin['y'], self.origin['y'] + self.height)
 
             self.geoms.append(shapely.LineString([(x1, y1), (x2, y2)]))
     

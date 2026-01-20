@@ -4,6 +4,7 @@ import shapely
 
 from algorithmic_art.techniques.base_technique import BaseTechnique
 from algorithmic_art.techniques.params import phyllo
+from algorithmic_art.tools.art_utils import constrain
 from algorithmic_art.tools.curves import catrom_curve
 from algorithmic_art.tools.shapes import circular_sinewave
 
@@ -57,14 +58,16 @@ class Phyllotaxis(BaseTechnique):
     
 
     def draw(self):
+        center_x = self.origin['x'] + (self.width / 2)
+        center_y = self.origin['y'] + (self.height / 2)
         stop = int(min(self.width, self.height) * 0.8)
         for n in range(self.start_n, stop, self.mod):
             a = n * 137.5
             r = self.c * math.sqrt(n)
 
             a = math.radians(a)
-            x = r * math.cos(a) + self.width / 2
-            y = r * math.sin(a) + self.height / 2
+            x = r * math.cos(a) + center_x
+            y = r * math.sin(a) + center_y
 
             self.geoms.append(circular_sinewave(x, y, self.radius, self.freq, self.amp))
             

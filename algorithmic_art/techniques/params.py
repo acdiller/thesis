@@ -89,11 +89,18 @@ phyllo = {
 }
 
 radlines = {
-    'params': {
+    # 'params': {
+    #     'n_lines': (50, 100),
+    #     'line_length': (50, 200),
+    #     'base_r': (10, 50),
+    #     'shift': (5, 20),
+    #     'shiftstep': (5, 10)
+    # },
+        'params': {
         'n_lines': (50, 100),
-        'line_length': (50, 200),
-        'base_r': (10, 50),
-        'shift': (5, 20),
+        'line_length': (20, 80),
+        'base_r': (5, 30),
+        'shift': (5, 15),
         'shiftstep': (5, 10)
     },
     'randomizers': {
