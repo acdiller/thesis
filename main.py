@@ -5,34 +5,21 @@ from copy import deepcopy
 
 import shapely
 
+import mutation
+import pens
+import settings
 from archive import Archive
 from individual import Individual
-from pens import pilotV5
-
-from algorithmic_art.techniques import (
-    CirclePacking,
-    ElementaryCA,
-    FlowField,
-    Phyllotaxis,
-    RadialLines
-)
-
-techniques = [CirclePacking, ElementaryCA, FlowField, Phyllotaxis, RadialLines]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--run_num", default=0, type=int, help="Run number.")
 parser.add_argument("--iterations", default=100, type=int, help="Number of iterations to run MAP-Elites for.")
 parser.add_argument("--population_size", default=50, type=int, help="Initial population size.")
 #parser.add_argument("--crossover_rate", default=0.4, type=float)
-#parser.add_argument("--mutation_rate", default=0.2, type=float)
-parser.add_argument("--overlap", action="store_true", default=False, help="Whether to overlap or partition techniques.")
+parser.add_argument("--mutation_rate", default=0.01, type=float)
+parser.add_argument("--pentype", choices=[pens.pilotV5, pens.pilotV7], default=pens.pilotV5, help="Type of pen to plot with.")
 parser.add_argument("--output_path", default="./", type=str, help="Output path.")
 args = parser.parse_args()
-
-
-DIM = (1054, 816)   # US letter paper at 96 DPI
-test_palette = ["#61E8E1", "#F25757", "#FFC145", "#1F5673"]
-
 
 def createSVG(ind, filename="test.svg"):
     xml_preamble = '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -46,15 +33,15 @@ def createSVG(ind, filename="test.svg"):
         all_geoms += t.geoms
 
     # create random palette from available pen colours
-    n_colours = ind.rng.randint(2, 5)
-    palette = ind.rng.sample(list(ind.pentype['colours'].keys()), n_colours)
+    n_colours = settings.rng.randint(2, 5)
+    palette = settings.rng.sample(list(ind.pentype['colours'].keys()), n_colours)
     
     with open(filename, "w") as f:
         f.write(xml_preamble)
         f.write(svg_root)
         for g in all_geoms:
             # create randomized palette from available pen colours
-            colour = ind.pentype['colours'][ind.rng.choice(palette)]
+            colour = ind.pentype['colours'][settings.rng.choice(palette)]
             f.write(g.svg(scale_factor=0.5, stroke_color=colour, opacity=1.0) + '\n')
         f.write(svg_close)
 
@@ -105,77 +92,59 @@ def getOverlaps(ind):
     return mostOverlaps
 
 
-def mutation(ind, it):
-    mutator = deepcopy(ind)
-    mutator.id += f"_m{it}"
-
-    # reset geometries, fitness, features, etc.
-    for t in mutator.techniques:
-        t.reset()
-    mutator.features = None
-    mutator.fitness = 0.0
-
-    # choose random technique and mutate one of its parameters
-    t = mutator.rng.choice(mutator.techniques)
-    t.mutate()
-
-    return mutator
-
-
 # generate random individual
-def generate_individual(id, rng, pentype, n_techniques):
-    ind = Individual(id, rng, DIM, pentype)
+def generate_individual(id, n_techniques):
+    ind = Individual(id, settings.rng, settings.DIM, settings.pentype)
     for _ in range(n_techniques):
-            t = rng.choice(techniques)
-            ind.techniques.append(t(rng, (0, 0, DIM[0], DIM[1])))
+            t = settings.rng.choice(settings.ALL_TECHNIQUES)
+            ind.techniques.append(t(settings.rng, (0, 0, settings.DIM[0], settings.DIM[1])))
+            #regions = divide_canvas(ind)
+            # TODO: assign techniques to regions
     print(f"Created {ind.id} with techniques: {', '.join(str(t) for t in ind.techniques)}")
     return ind
 
 
 # randomly generate initial population, evaluate, and add to archive
-def initArchive(rng, pop_size, archive):
+def initArchive(pop_size, archive):
     for i in range(pop_size):
         id = f"0_{i}"
-        n = rng.randrange(archive.fd_bins['n_techniques'][0], archive.fd_bins['n_techniques'][-1])
-        ind = generate_individual(id, rng, pilotV5, n)
+        n = settings.rng.randint(1, settings.MAX_T)
+        ind = generate_individual(id, n)
         evaluate(ind)
         archive.add_to_archive(ind)
-        
-        
+
         
 def main():
-    # cmd-line parameters
-    n_iterations = args.iterations
-    pop_size = args.population_size
+    # cmd-line arguments
+    settings.n_iterations = args.iterations
+    settings.pop_size = args.population_size
     #xover_rate = args.crossover_rate
-    #mut_rate = args.mutation_rate
+    settings.mutation_rate = args.mutation_rate
+    settings.pentype = args.pentype
     
     # create output directory if it doesn't exist
     if not os.path.exists(args.output_path): os.mkdir(args.output_path)
     
-    rng = random.Random(args.run_num)
-
-    # techniques
-    techniques = [CirclePacking, ElementaryCA, FlowField, Phyllotaxis, RadialLines]
+    settings.rng = random.Random(args.run_num)
 
     # configure bins - last element specifies upper bound
     fd_bins = {
-        'n_techniques': (2, 3, 4, 5, 6),
-        'n_elements': (0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500)
+        'n_techniques': tuple(range(1, settings.MAX_T)),
+        'n_elements': tuple(range(0, settings.MAX_ELEM+1, settings.ELEM_STEP))
     }
 
     # initialize archive
     map = Archive(fd_bins)
-    print(f"Generating initial population of {pop_size} individuals")
-    initArchive(rng, pop_size, map)
+    print(f"Generating initial population of {settings.pop_size} individuals")
+    initArchive(settings.pop_size, map)
 
-    for it in range(1, n_iterations):
+    for it in range(1, settings.n_iterations):
         # random selection
-        c = rng.choice(list(map.cells))
+        c = settings.rng.choice(list(map.cells))
         x = c[0][2]
 
         # mutation
-        offspring = mutation(x, it)
+        offspring = mutation.apply_mutation(x, it)
 
         # evaluate
         evaluate(offspring)
