@@ -5,6 +5,8 @@ import random
 
 import shapely
 
+import settings
+
 from algorithmic_art.techniques import (
     CirclePacking,
     ElementaryCA,
