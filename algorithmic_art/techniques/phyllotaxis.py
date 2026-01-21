@@ -10,7 +10,7 @@ from algorithmic_art.tools.shapes import circular_sinewave
 
 
 class Phyllotaxis(BaseTechnique):
-    def __init__(self, rng, subdim, start_n=None, c=None, mod=None, radius=None, freq=None, amp=None):
+    def __init__(self, rng, subdim=None, start_n=None, c=None, mod=None, radius=None, freq=None, amp=None):
         super().__init__(rng, subdim)
 
         if start_n:
@@ -58,9 +58,10 @@ class Phyllotaxis(BaseTechnique):
     
 
     def draw(self):
-        center_x = self.origin['x'] + (self.width / 2)
-        center_y = self.origin['y'] + (self.height / 2)
+        center_x = self.origin_x + (self.width / 2)
+        center_y = self.origin_y + (self.height / 2)
         stop = int(min(self.width, self.height) * 0.8)
+        
         for n in range(self.start_n, stop, self.mod):
             a = n * 137.5
             r = self.c * math.sqrt(n)

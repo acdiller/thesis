@@ -16,7 +16,7 @@ class Particle():
 
 
 class FlowField(BaseTechnique):
-    def __init__(self, rng, subdim, style=None, resolution=None, noisescale=None, octaves=None, persistence=None, lacunarity=None):
+    def __init__(self, rng, subdim=None, style=None, resolution=None, noisescale=None, octaves=None, persistence=None, lacunarity=None):
         super().__init__(rng, subdim)
         
         if style:
@@ -70,16 +70,12 @@ class FlowField(BaseTechnique):
         """
         Place particles randomly along the edges of the drawing area.
         """
-        for x in range(self.origin['x'], self.width, self.resolution):
+        for x in range(self.origin_x, self.width, self.resolution):
             y = 0 if self.rng.random() < 0.5 else self.height
-            #p = {'x': x, 'y': y, 'colour': self.rng.choice(self.palette)}
-            #self.particles.append(p)
             self.particles.append(Particle(x, y))
         
-        for y in range(self.origin['y'], self.height, self.resolution):
+        for y in range(self.origin_y, self.height, self.resolution):
             x = 0 if self.rng.random() < 0.5 else self.width
-            #p = {'x': x, 'y': y, 'colour': self.rng.choice(self.palette)}
-            #self.particles.append(p)
             self.particles.append(Particle(x, y))
 
 
@@ -89,8 +85,8 @@ class FlowField(BaseTechnique):
         """
         n = (self.width//self.resolution) + (self.height//self.resolution)
         for _ in range(n):
-            x = self.rng.randrange(self.origin['x'], self.origin['x'] + self.width)
-            y = self.rng.randrange(self.origin['y'], self.origin['y'] + self.height)
+            x = self.rng.randrange(self.origin_x, self.origin_x + self.width)
+            y = self.rng.randrange(self.origin_y, self.origin_y + self.height)
             self.particles.append(Particle(x, y, 200))
 
 
@@ -98,7 +94,7 @@ class FlowField(BaseTechnique):
         """
         Check if a particle is within the drawing area.
         """
-        return (p.x >= self.origin['x']) and (p.x < self.origin['x'] + self.width) and (p.y >= self.origin['y']) and (p.y < self.origin['y'] + self.height)
+        return (p.x >= self.origin_x) and (p.x < self.origin_x + self.width) and (p.y >= self.origin_y) and (p.y < self.origin_y + self.height)
 
 
     def draw(self):
@@ -122,7 +118,7 @@ class FlowField(BaseTechnique):
                 p.y += math.sin(angle)
 
                 #points.append((p.x, p.y))
-                points.append((constrain(p.x, self.origin['x'], self.origin['x'] + self.width), constrain(p.y, self.origin['y'], self.origin['y'] + self.height)))
+                points.append((constrain(p.x, self.origin_x, self.origin_x + self.width), constrain(p.y, self.origin_y, self.origin_y + self.height)))
 
                 if p.life is not None:
                     p.life -= 1

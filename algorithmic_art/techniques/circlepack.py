@@ -6,7 +6,7 @@ from algorithmic_art.tools.art_utils import p5map
 from algorithmic_art.tools.shapes import circle, circular_sinewave
 
 class CirclePacking(BaseTechnique):
-    def __init__(self, rng, subdim, n_spawn=None, max_failures=None, start_r=None, shape_type=None, pad=2):
+    def __init__(self, rng, subdim=None, n_spawn=None, max_failures=None, start_r=None, shape_type=None, pad=2):
         super().__init__(rng, subdim)
         
         self.pad = pad  # minimum spacing between elements
@@ -64,8 +64,8 @@ class CirclePacking(BaseTechnique):
 
             x = self.rng.randrange(buffer, int(self.width - buffer))
             y = self.rng.randrange(buffer, int(self.height - buffer))
-            x += self.origin['x']
-            y += self.origin['y']
+            x += self.origin_x
+            y += self.origin_y
 
             if self.collision({'x': x, 'y': y, 'r': self.start_r, 'amp': amp}):
                 failures += 1
@@ -98,8 +98,8 @@ class CirclePacking(BaseTechnique):
             
             x = self.rng.randrange(buffer, int(self.width - buffer))
             y = self.rng.randrange(buffer, int(self.height - buffer))
-            x += self.origin['x']
-            y += self.origin['y']
+            x += self.origin_x
+            y += self.origin_y
 
             if self.collision({'x': x, 'y': y, 'r': self.start_r, 'amp': 2}):
                 failures += 1
@@ -135,10 +135,10 @@ class CirclePacking(BaseTechnique):
                 if distance < c['r'] + c2['r'] + (self.pad * 2) + c['amp'] + c2['amp']:
                     circle_collision = True
         
-        edge_collision = ((c['x'] - c['r'] - self.pad - c['amp'] <= self.origin['x']) or
-                          (c['x'] + c['r'] + self.pad + c['amp'] >= self.origin['x'] + self.width) or
-                          (c['y'] - c['r'] - self.pad - c['amp'] <= self.origin['y']) or
-                          (c['y'] + c['r'] + self.pad + c['amp'] >= self.origin['y'] + self.height))
+        edge_collision = ((c['x'] - c['r'] - self.pad - c['amp'] <= self.origin_x) or
+                          (c['x'] + c['r'] + self.pad + c['amp'] >= self.origin_x + self.width) or
+                          (c['y'] - c['r'] - self.pad - c['amp'] <= self.origin_y) or
+                          (c['y'] + c['r'] + self.pad + c['amp'] >= self.origin_y + self.height))
         return circle_collision or edge_collision
     
 

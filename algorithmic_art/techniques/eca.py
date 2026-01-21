@@ -3,7 +3,7 @@ from algorithmic_art.techniques.params import eca
 from algorithmic_art.tools.shapes import rect
 
 class ElementaryCA(BaseTechnique):
-    def __init__(self, rng, subdim, cellsize=None, rule=None, init_state=None, pad=2):
+    def __init__(self, rng, subdim=None, cellsize=None, rule=None, init_state=None, pad=2):
         super().__init__(rng, subdim)
         
         self.pad = pad  # minimum spacing between elements
@@ -48,7 +48,7 @@ class ElementaryCA(BaseTechnique):
         # LEFTMOST EDGE CELL
         nextgen[0] = self.check_rule(cells[len(cells)-1], cells[0], cells[1])
         # RIGHTMOST EDGE CELL
-        nextgen[len(cells)-1] = cells[0]
+        nextgen[len(cells)-1] = self.check_rule(cells[len(cells)-2], cells[len(cells)-1], cells[0])
         # EVERYTHING ELSE
         for i in range(1, len(cells) - 1):
             left = cells[i-1]
@@ -87,12 +87,14 @@ class ElementaryCA(BaseTechnique):
             self.history.append(cells)
             gen += 1
         
+        x_off = (self.width - (num_cells * self.cellsize)) / 2
+        y_off = (self.height - (num_gens * self.cellsize)) / 2
         # draw out full history
         for g, generation in enumerate(self.history):
             for i in range(len(generation)):
                 if generation[i] == 1:
-                    x = self.origin['x'] + (i * self.cellsize)
-                    y = self.origin['y'] + (g * self.cellsize)
+                    x = self.origin_x + (i * self.cellsize) + x_off
+                    y = self.origin_y + (g * self.cellsize) + y_off
                     
                     self.geoms.append(rect(x + self.pad, y + self.pad, self.cellsize - self.pad, self.cellsize - self.pad))
     
