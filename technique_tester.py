@@ -23,14 +23,12 @@ from algorithmic_art.tools.shapes import (
     rect
 )
 
-DIM = (1054, 816)   # US letter paper at 96 DPI
-#test_palette = ["#61E8E1", "#F25757", "#FFC145", "#1F5673"]
 test_palette = ["#054A91", "#62BFED", "#C81D25", "#A0C940"]
 
 def createSVG(ind=None, elems=None, filename="test.svg"):
     xml_preamble = '<?xml version="1.0" encoding="UTF-8"?>\n'
-    w = DIM[0]
-    h = DIM[1]
+    w = settings.DIM[0]
+    h = settings.DIM[1]
     svg_root = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"\n \twidth="' + str(w) + '" height="' + str(h) + '" viewBox="0 0 ' + str(w) + ' ' + str(h) + '">\n'
     svg_close = '</svg>'
 
@@ -48,8 +46,34 @@ def createSVG(ind=None, elems=None, filename="test.svg"):
         f.write(svg_root)
         for g in geoms:
             colour = random.choice(test_palette)
-            f.write(g.svg(scale_factor=0.5, stroke_color=colour, opacity=1.0) + '\n')
+            if isinstance(g, shapely.Point):
+                f.write(g.svg(scale_factor=0.5, fill_color=colour, opacity=1.0) + '\n')
+            elif isinstance(g, shapely.Polygon):
+                f.write(poly_to_svg(g, scale_factor=0.5, fill_color=colour) + '\n')
+            else:
+                f.write(g.svg(scale_factor=0.5, stroke_color=colour, opacity=1.0) + '\n')
         f.write(svg_close)
+
+
+def poly_to_svg(geom, scale_factor, fill_color, stroke_color=None, opacity=1.0):
+    if geom.is_empty:
+        return "<g />"
+    if stroke_color is None:
+        stroke_color = fill_color
+    exterior_coords = [["{},{}".format(*c) for c in geom.exterior.coords]]
+    interior_coords = [
+        ["{},{}".format(*c) for c in interior.coords] for interior in geom.interiors
+    ]
+    path = " ".join(
+        [
+            "M {} L {} z".format(coords[0], " L ".join(coords[1:]))
+            for coords in exterior_coords + interior_coords
+        ]
+    )
+    return (
+        f'<path fill-rule="evenodd" fill="{fill_color}" stroke="{stroke_color}" '
+        f'stroke-width="{2.0 * scale_factor}" opacity="{opacity}" d="{path}" />'
+    )
 
 
 def circlepack(rng, sd, output_svg=True):
@@ -65,7 +89,7 @@ def circlepack(rng, sd, output_svg=True):
         return cp
 
 
-def elemca(rng, sd, output_svg=True):
+def elemca(rng, sd=None, output_svg=True):
     eca = ElementaryCA(rng, sd, init_state="random", rule=30, cellsize=10)
     #eca.mutate()
     eca.draw()
@@ -76,7 +100,7 @@ def elemca(rng, sd, output_svg=True):
         return eca
 
 
-def flowfield(rng, sd, output_svg=True):
+def flowfield(rng, sd=None, output_svg=True):
     res = 4
     ns = 800
     octs = 8
@@ -94,8 +118,8 @@ def flowfield(rng, sd, output_svg=True):
         return ff
     
 
-def linetiles(rng, sd, output_svg=True):
-    lt = LineTiles(rng, sd, step=5.0, noise_based=False)
+def linetiles(rng, sd=None, output_svg=True):
+    lt = LineTiles(rng, subdim=sd, noise_based=False)
     lt.draw()
 
     if output_svg:
@@ -104,7 +128,7 @@ def linetiles(rng, sd, output_svg=True):
         return lt
     
 
-def phyllo(rng, sd, output_svg=True):
+def phyllo(rng, sd=None, output_svg=True):
     n = 75
     c = 10
     mod = 5
@@ -121,7 +145,7 @@ def phyllo(rng, sd, output_svg=True):
         return phy
 
 
-def radlines(rng, sd, output_svg=True):
+def radlines(rng, sd=None, output_svg=True):
     rad = RadialLines(rng, sd)
     rad.draw()
     
@@ -131,7 +155,7 @@ def radlines(rng, sd, output_svg=True):
         return rad
 
 
-def cropped(rng, sd):
+def cropped(rng, sd=None):
     ff = flowfield(rng, sd, output_svg=False)
     cp = circlepack(rng, sd, output_svg=False)
 
@@ -146,17 +170,20 @@ def cropped(rng, sd):
 
 def main():
     rng = random.Random()
-    rng.seed(9)
-
-    sd = (0, 0, DIM[0], DIM[1])
-    #sd = (DIM[0]/2, DIM[1]/2, DIM[0], DIM[1])
+    rng.seed(22)
 
     #csw = circular_sinewave(50, 50, r=25, freq=10, amp=2)
     #print("csw", shapely.get_num_points(csw))
-    #createSVG(elems=[csw], filename="csw-test.svg")
+    #createSVG(elems=[csw], filename="csw-filled-test.svg")
 
-    #h = hexagon(100, 100, 100)
-    #createSVG(elems=[h])
+    # cp = CirclePacking(rng)
+    # cp.draw()
+    # eca = ElementaryCA(rng)
+    # eca.draw()
+    # stuff = cp.geoms + eca.geoms
+    # createSVG(elems=stuff, filename="cp-eca-filled-test.svg")
+
+    linetiles(rng)
 
 
 if __name__ == "__main__":
