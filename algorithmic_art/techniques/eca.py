@@ -3,7 +3,7 @@ from algorithmic_art.techniques.params import eca
 from algorithmic_art.tools.shapes import rect
 
 class ElementaryCA(BaseTechnique):
-    def __init__(self, rng, subdim=None, cellsize=None, rule=None, init_state=None, pad=2):
+    def __init__(self, rng, subdim=None, cellsize=None, rule=None, init_state=None, fill_chance=None, pad=2):
         super().__init__(rng, subdim)
         
         self.pad = pad  # minimum spacing between elements
@@ -22,6 +22,11 @@ class ElementaryCA(BaseTechnique):
             self.init_state = init_state
         else:
             self.init_state = eca['randomizers']['init_state'](self.rng, eca['params']['init_state'])
+        
+        if fill_chance:
+            self.fill_chance = fill_chance
+        else:
+            self.fill_chance = 0.4
         
         self.ruleset = [int(n) for n in format(self.rule, '08b')]
 
@@ -96,7 +101,10 @@ class ElementaryCA(BaseTechnique):
                     x = self.origin_x + (i * self.cellsize) + x_off
                     y = self.origin_y + (g * self.cellsize) + y_off
                     
-                    self.geoms.append(rect(x + self.pad, y + self.pad, self.cellsize - self.pad, self.cellsize - self.pad))
+                    if self.rng.random() <= self.fill_chance:
+                        self.geoms.append(rect(x + self.pad, y + self.pad, self.cellsize - self.pad, self.cellsize - self.pad, filled=True))
+                    else:
+                        self.geoms.append(rect(x + self.pad, y + self.pad, self.cellsize - self.pad, self.cellsize - self.pad))
     
 
     def __str__(self):

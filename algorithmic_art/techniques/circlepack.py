@@ -6,7 +6,7 @@ from algorithmic_art.tools.art_utils import p5map
 from algorithmic_art.tools.shapes import circle, circular_sinewave
 
 class CirclePacking(BaseTechnique):
-    def __init__(self, rng, subdim=None, n_spawn=None, max_failures=None, start_r=None, shape_type=None, pad=2):
+    def __init__(self, rng, subdim=None, n_spawn=None, max_failures=None, start_r=None, shape_type=None, fill_chance=None, pad=2):
         super().__init__(rng, subdim)
         
         self.pad = pad  # minimum spacing between elements
@@ -31,6 +31,11 @@ class CirclePacking(BaseTechnique):
         else:
             self.shape_type = cp['randomizers']['shape_type'](self.rng, cp['params']['shape_type'])
         
+        if fill_chance:
+            self.fill_chance = fill_chance
+        else:
+            self.fill_chance = 0.4
+
         self.max_r = 50
 
         self.circles = []
@@ -163,10 +168,16 @@ class CirclePacking(BaseTechnique):
         else:
             for c in self.circles:
                 if self.shape_type == 'circle':
-                    self.geoms.append(circle(c['x'], c['y'], c['r']))
+                    if self.rng.random() <= self.fill_chance:
+                        self.geoms.append(circle(c['x'], c['y'], c['r'], filled=True))
+                    else:
+                        self.geoms.append(circle(c['x'], c['y'], c['r']))
                 elif self.shape_type == 'sinewave':
                     freq = self.rng.randint(5, 8)
-                    self.geoms.append(circular_sinewave(c['x'], c['y'], c['r'], freq, c['amp']))
+                    if self.rng.random() <= self.fill_chance:
+                        self.geoms.append(circular_sinewave(c['x'], c['y'], c['r'], freq, c['amp'], filled=True))
+                    else:
+                        self.geoms.append(circular_sinewave(c['x'], c['y'], c['r'], freq, c['amp']))
     
 
     def __str__(self):

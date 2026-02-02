@@ -11,7 +11,7 @@ import shapely
 from algorithmic_art.tools.curves import catrom_curve
 
 
-def circle(cx, cy, r):
+def circle(cx, cy, r, filled=False):
     """
     Create a circle centered at (cx, cy).
 
@@ -23,10 +23,13 @@ def circle(cx, cy, r):
     Returns:
         shapely.LineString: outline of the circle
     """
-    return shapely.Point(cx, cy).buffer(r).boundary
+    if filled:
+        return shapely.Point(cx, cy).buffer(r)
+    else:
+        return shapely.Point(cx, cy).buffer(r).boundary
 
 
-def rect(x, y, w, h):
+def rect(x, y, w, h, filled=False):
     """
     Create a rectangle with its top-left corner at (x, y).
 
@@ -37,14 +40,18 @@ def rect(x, y, w, h):
         h (int or float): height of the rectangle
     
     Returns:
-        shapely.LineString: outline of the rectangle
+        shapely.LineString: outline of the rectangle (filled=False)
+        shapely.Polgyon: rectangle (filled=True)
     """
     x2 = x + w
     y2 = y + h
-    return shapely.box(x, y, x2, y2).boundary
+    if filled:
+        return shapely.box(x, y, x2, y2)
+    else:
+        return shapely.box(x, y, x2, y2).boundary
 
 
-def hexagon(cx, cy, r):
+def hexagon(cx, cy, r, filled=False):
     """
     Create a hexagon centered at (cx, cy).
 
@@ -54,7 +61,8 @@ def hexagon(cx, cy, r):
         r (int or float): circumradius
     
     Returns:
-        shapely.LineString: outline of the hexagon
+        shapely.LineString: outline of the hexagon (filled=False)
+        shapely.Polygon: filled-in hexagon (filled=True)
     """
     hexpoints = []
     for a in range(0, 360, 60):
@@ -62,11 +70,13 @@ def hexagon(cx, cy, r):
         cy += math.sin(math.radians(a)) * r
         hexpoints.append(shapely.Point(cx, cy))
     hexpoints.append(hexpoints[0])  # add first vertex again to close shape
+    if filled:
+        return shapely.Polygon(hexpoints)
+    else:
+        return shapely.LineString(hexpoints)
 
-    return shapely.LineString(hexpoints)
 
-
-def circular_sinewave(cx, cy, r, freq, amp):
+def circular_sinewave(cx, cy, r, freq, amp, filled=False):
     a = 0
     step = 0.075
 
@@ -85,5 +95,7 @@ def circular_sinewave(cx, cy, r, freq, amp):
     base_points.append(shapely.Point(dx, dy))  # last control point
     curve_points = catrom_curve(base_points, res=0.75)
     
-    #return shapely.LineString(curve_points)
-    return shapely.LinearRing(curve_points)
+    if filled:
+        return shapely.Polygon(shapely.LinearRing(curve_points))
+    else:
+        return shapely.LinearRing(curve_points)
