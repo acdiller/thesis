@@ -13,3 +13,5 @@ __pycache__/
 *.code-workspace
 .vscode/
 *.json
+
+.misc_tests/
